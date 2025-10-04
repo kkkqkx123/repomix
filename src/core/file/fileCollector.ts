@@ -3,6 +3,7 @@ import type { RepomixProgressCallback } from '../../shared/types.js';
 import { collectFiles as collectFilesByPath } from './fileCollect.js';
 import { searchFiles } from './fileSearch.js';
 import { matchFilesByPattern } from './filePattern.js';
+import path from 'node:path';
 
 export interface FileCollectionOptions {
   rootDir: string;
@@ -31,18 +32,21 @@ export const collectFilesByPattern = async (
     const patternResult = await matchFilesByPattern(filePatterns, {
       cwd: rootDir,
       ignorePatterns: config.ignore.customPatterns || [],
-      absolute: true
+      absolute: false // 使用相对路径
     });
     
     // 如果需要扁平化路径，处理相对路径
     let finalFilePaths = patternResult.filePaths;
     if (flattenPaths) {
-      // 扁平化处理：只保留文件名
-      finalFilePaths = patternResult.filePaths.map(filePath => {
-        const fileName = path.basename(filePath);
+      // 扁平化处理：将相对路径扁平化，保持文件在根目录下
+      finalFilePaths = patternResult.relativePaths.map(relativePath => {
+        const fileName = path.basename(relativePath);
         return path.join(rootDir, fileName);
       });
     }
+    
+    // 确保路径格式正确 - 转换为绝对路径
+    finalFilePaths = finalFilePaths.map(filePath => path.resolve(rootDir, filePath));
     
     // 使用现有的文件收集逻辑
     const collectResult = await collectFilesByPath(
@@ -106,5 +110,3 @@ export const mergeFileCollections = async (
     skippedFiles: uniqueSkippedFiles
   };
 };
-
-import path from 'node:path';

@@ -48,7 +48,7 @@ export const matchFilesByPattern = async (
     logger.trace(`Matched ${filePaths.length} files with patterns`);
     
     return {
-      filePaths: options.absolute ? filePaths : filePaths.map(p => path.join(options.cwd, p)),
+      filePaths: options.absolute ? filePaths : relativePaths,
       relativePaths
     };
   } catch (error) {
