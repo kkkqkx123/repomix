@@ -637,6 +637,8 @@ Instruction
 - `-i, --ignore <patterns>`: Additional patterns to exclude (comma-separated, e.g., "*.test.js,docs/**")
 - `--no-gitignore`: Don't use .gitignore rules for filtering files
 - `--no-default-patterns`: Don't apply built-in ignore patterns (node_modules, .git, build dirs, etc.)
+- `--files <patterns>`: Process specific files using glob patterns (comma-separated, e.g., "src/main.ts,utils/**/*.js")
+- `--flatten`: Flatten directory structure in output (all files appear in root directory)
 
 #### Remote Repository Options
 - `--remote <url>`: Clone and pack a remote repository (GitHub URL or user/repo format)
@@ -703,6 +705,65 @@ bun update -g repomix
 ```
 
 Using `npx repomix` is generally more convenient as it always uses the latest version.
+
+### File Pattern Matching and Path Flattening
+
+Repomix now supports advanced file selection and output customization through file pattern matching and path flattening features.
+
+#### File Pattern Matching with `--files`
+
+The `--files` option allows you to process specific files using glob patterns, providing more granular control over file selection:
+
+```bash
+# Process specific files
+repomix --files "src/main.ts,utils/helpers.js"
+
+# Process files matching patterns
+repomix --files "src/**/*.ts,*.md"
+
+# Combine with other options
+repomix --files "src/**/*.ts" --style markdown --compress
+```
+
+Key features:
+- **Explicit file selection**: Only process files that match the specified patterns
+- **Glob pattern support**: Use standard glob patterns like `**/*.ts`, `*.md`, `src/**`
+- **Multiple patterns**: Combine patterns with comma separation
+- **Relative path resolution**: Patterns are resolved relative to the current directory
+
+#### Path Flattening with `--flatten`
+
+The `--flatten` option removes directory hierarchy from the output, placing all files in the root directory:
+
+```bash
+# Flatten directory structure
+repomix --flatten
+
+# Combine with file patterns
+repomix --files "src/**/*.ts" --flatten
+
+# Flatten with compression
+repomix --flatten --compress
+```
+
+Benefits of path flattening:
+- **Simplified navigation**: All files appear at the root level
+- **Reduced complexity**: Eliminates deep directory structures
+- **Conflict resolution**: Automatically handles filename conflicts by adding numeric suffixes
+- **AI-friendly**: Makes it easier for AI systems to access all files without navigating complex paths
+
+#### Advanced Usage Examples
+
+```bash
+# Process TypeScript files only and flatten structure
+repomix --files "**/*.ts" --flatten --style markdown
+
+# Process specific directories and flatten
+repomix --files "src/**,tests/**" --flatten
+
+# Combine with include/ignore patterns
+repomix --files "src/**" --ignore "**/*.test.ts" --flatten
+```
 
 ### Remote Repository Processing
 
@@ -1029,6 +1090,8 @@ Here's an explanation of the configuration options:
 | `output.git.includeLogs`        | Whether to include git logs in the output (includes commit history with dates, messages, and file paths)                   | `false`                |
 | `output.git.includeLogsCount`   | Number of git log commits to include                                                                                         | `50`                   |
 | `include`                        | Patterns of files to include (using [glob patterns](https://github.com/mrmlnc/fast-glob?tab=readme-ov-file#pattern-syntax))  | `[]`                   |
+| `files`                          | Specific file patterns to process (using [glob patterns](https://github.com/mrmlnc/fast-glob?tab=readme-ov-file#pattern-syntax)) | `[]`                   |
+| `flatten`                        | Whether to flatten directory structure in output (all files appear in root directory)                                        | `false`                |
 | `ignore.useGitignore`            | Whether to use patterns from the project's `.gitignore` file                                                                 | `true`                 |
 | `ignore.useDefaultPatterns`      | Whether to use default ignore patterns                                                                                       | `true`                 |
 | `ignore.customPatterns`          | Additional patterns to ignore (using [glob patterns](https://github.com/mrmlnc/fast-glob?tab=readme-ov-file#pattern-syntax)) | `[]`                   |
@@ -1074,6 +1137,8 @@ Example configuration:
     }
   },
   "include": ["**/*"],
+  "files": [], // Specific file patterns to process (e.g., ["src/**/*.ts", "*.md"])
+  "flatten": false, // Flatten directory structure in output
   "ignore": {
     "useGitignore": true,
     "useDefaultPatterns": true,
@@ -1294,6 +1359,18 @@ Pack specific directories with compression:
     compress: true
 ```
 
+Use file patterns and flattening:
+
+```yaml
+- name: Pack repository with Repomix
+  uses: yamadashy/repomix/.github/actions/repomix@main
+  with:
+    files: "src/**/*.ts,*.md"
+    flatten: true
+    output: repomix-output.md
+    style: markdown
+```
+
 Upload the output file as an artifact:
 
 ```yaml
@@ -1351,6 +1428,8 @@ See the complete workflow example [here](https://github.com/yamadashy/repomix/bl
 |------|-------------|---------|
 | `directories` | Space-separated list of directories to process (e.g., `src tests docs`) | `.` |
 | `include` | Comma-separated glob patterns to include files (e.g., `**/*.ts,**/*.md`) | `""` |
+| `files` | Comma-separated glob patterns for specific files to process (e.g., `src/main.ts,utils/**/*.js`) | `""` |
+| `flatten` | Flatten directory structure in output (all files appear in root directory) | `false` |
 | `ignore` | Comma-separated glob patterns to ignore files (e.g., `**/*.test.ts,**/node_modules/**`) | `""` |
 | `output` | Relative path for the packed file (extension determines format: `.txt`, `.md`, `.xml`) | `repomix-output.xml` |
 | `compress` | Enable smart compression to reduce output size by pruning implementation details | `true` |
@@ -1363,6 +1442,15 @@ See the complete workflow example [here](https://github.com/yamadashy/repomix/bl
 | Name | Description |
 |------|-------------|
 | `output_file` | Path to the generated output file. Can be used in subsequent steps for artifact upload, LLM processing, or other operations. The file contains a formatted representation of your codebase based on the specified options. |
+
+## 📚 Documentation
+
+For detailed documentation on Repomix's features and advanced usage, check out the following guides:
+
+- [File Patterns Guide](docs/file-patterns-guide.md) - Comprehensive guide to file pattern matching and path flattening
+- [File Patterns API Reference](docs/file-patterns-api.md) - Detailed API documentation for file pattern matching features
+- [File Patterns Changelog](docs/file-patterns-changelog.md) - Complete changelog for file pattern matching functionality
+- [Packaging Guide](docs/packaging-guide.md) - Complete guide to packaging repositories with Repomix
 
 ## 📚 Using Repomix as a Library
 

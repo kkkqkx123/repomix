@@ -69,14 +69,28 @@ async function defaultActionWorker(
         },
         {},
         stdinFilePaths,
+        undefined, // filePatterns
+        undefined  // flattenPathsOption
       );
     } else {
       // Handle directory processing
       const targetPaths = directories.map((directory) => path.resolve(cwd, directory));
 
-      packResult = await pack(targetPaths, config, (message) => {
-        spinner.update(message);
-      });
+      // 提取文件模式和扁平化选项
+      const filePatterns = config.files?.patterns;
+      const flattenPathsOption = config.files?.flatten;
+
+      packResult = await pack(
+        targetPaths, 
+        config, 
+        (message) => {
+          spinner.update(message);
+        },
+        {},
+        undefined, // explicitFiles
+        filePatterns,
+        flattenPathsOption
+      );
     }
 
     spinner.succeed('Packing completed successfully!');

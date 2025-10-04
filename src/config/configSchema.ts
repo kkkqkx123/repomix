@@ -59,6 +59,12 @@ export const repomixConfigBaseSchema = z.object({
       customPatterns: z.array(z.string()).optional(),
     })
     .optional(),
+  files: z
+    .object({
+      patterns: z.array(z.string()).optional(),
+      flatten: z.boolean().optional(),
+    })
+    .optional(),
   security: z
     .object({
       enableSecurityCheck: z.boolean().optional(),

@@ -10,6 +10,7 @@ import { runMcpAction } from './actions/mcpAction.js';
 import { runRemoteAction } from './actions/remoteAction.js';
 import { runVersionAction } from './actions/versionAction.js';
 import type { CliOptions } from './types.js';
+import { createFileOptions, parseFilePatterns, validateFileOptions } from './options/fileOptions.js';
 
 // Semantic mapping for CLI suggestions
 // This maps conceptually related terms (not typos) to valid options
@@ -43,6 +44,15 @@ const semanticSuggestionMap: Record<string, string[]> = {
   console: ['--stdout'],
   terminal: ['--stdout'],
   pipe: ['--stdin'],
+  // 新的文件选项语义映射
+  pattern: ['--files'],
+  glob: ['--files'],
+  match: ['--files'],
+  find: ['--files'],
+  flat: ['--flatten'],
+  flatten: ['--flatten'],
+  'no-directory': ['--flatten'],
+  'flat-structure': ['--flatten'],
 };
 
 export const run = async () => {
@@ -142,6 +152,9 @@ export const run = async () => {
       .option('-i, --ignore <patterns>', 'Additional patterns to exclude (comma-separated, e.g., "*.test.js,docs/**")')
       .option('--no-gitignore', "Don't use .gitignore rules for filtering files")
       .option('--no-default-patterns', "Don't apply built-in ignore patterns (node_modules, .git, build dirs, etc.)")
+      // 添加新的文件模式选项
+      .addOption(createFileOptions()[0]) // --files 选项
+      .addOption(createFileOptions()[1]) // --flatten 选项
       // Remote Repository Options
       .optionsGroup('Remote Repository Options')
       .option('--remote <url>', 'Clone and pack a remote repository (GitHub URL or user/repo format)')

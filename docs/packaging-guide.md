@@ -6,38 +6,80 @@
 3. 缺乏直接指定多个独立文件的能力
 
 ## 推荐实现方案
-### 核心修改点
-```javascript
-// 在packager.ts中增加文件模式处理逻辑
-const { globby } = require('globby');
 
-async function collectFiles(patterns) {
-  return globby(patterns, {
-    cwd: process.cwd(),
-    ignore: options.ignore,
-    absolute: true,
-    objectMode: true
-  });
-}
+### 新增文件结构
+```
+src/core/file/
+├── filePattern.ts          # 文件模式匹配核心逻辑
+├── fileCollector.ts        # 文件收集器
+└── pathFlattener.ts        # 路径扁平化处理器
 
-// 路径扁平化处理
-function flattenPaths(files) {
-  return files.map(file => ({
-    ...file,
-    relative: path.basename(file.path)
-  }));
-}
+src/cli/options/
+└── fileOptions.ts          # 文件相关CLI选项定义
 ```
 
-### CLI增强
-```javascript
-// 修改cliRun.ts参数解析
-.option('-f, --files <patterns...>', '指定需要包含的glob文件模式')
-.option('-F, --flatten', '启用路径扁平化')
+### 核心文件功能
 
-// 使用示例
-repomix --files 'src/**/*.ts' 'config/*.json' --flatten
+#### 1. `src/core/file/filePattern.ts`
+```typescript
+// 主要功能：处理glob模式匹配
+- 支持多模式并行匹配
+- 处理相对路径和绝对路径转换
+- 提供模式验证和错误处理
+- 集成现有ignore规则
 ```
+
+#### 2. `src/core/file/fileCollector.ts`  
+```typescript
+// 主要功能：文件收集和筛选
+- 基于glob模式收集文件
+- 与现有目录收集逻辑集成
+- 处理重复文件去重
+- 提供文件统计信息
+```
+
+#### 3. `src/core/file/pathFlattener.ts`
+```typescript
+// 主要功能：路径扁平化处理
+- 将完整路径转换为文件名
+- 处理文件名冲突（添加数字后缀）
+- 保留文件扩展名信息
+- 提供扁平化配置选项
+```
+
+#### 4. `src/cli/options/fileOptions.ts`
+```typescript
+// 主要功能：CLI选项定义
+- 定义--files和--flatten参数
+- 参数验证和默认值设置
+- 与现有选项的兼容性处理
+```
+
+### 实施TODO列表
+
+#### 第一阶段：核心功能开发
+- [ ] 创建`filePattern.ts`实现glob模式匹配
+- [ ] 创建`fileCollector.ts`集成文件收集逻辑
+- [ ] 创建`pathFlattener.ts`实现路径扁平化
+- [ ] 修改`packager.ts`调用新文件收集器
+
+#### 第二阶段：CLI集成
+- [ ] 创建`fileOptions.ts`定义新CLI选项
+- [ ] 修改`cliRun.ts`集成新选项
+- [ ] 更新命令行帮助文档
+- [ ] 添加参数验证逻辑
+
+#### 第三阶段：测试和文档
+- [ ] 为新增功能编写单元测试
+- [ ] 更新集成测试用例
+- [ ] 编写使用示例文档
+- [ ] 更新README.md说明新功能
+
+#### 第四阶段：向后兼容
+- [ ] 确保现有--include参数正常工作
+- [ ] 处理文件和目录模式的优先级
+- [ ] 添加模式冲突检测
+- [ ] 提供迁移指南
 
 ## 临时解决方案
 1. 在项目根目录创建`.packinclude`文件

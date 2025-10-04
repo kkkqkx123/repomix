@@ -21,6 +21,7 @@ import type {
   PingResult,
   PingTask,
 } from './workers/defaultActionWorker.js';
+import { parseFilePatterns, validateFileOptions } from '../options/fileOptions.js';
 
 export interface DefaultActionRunnerResult {
   packResult: PackResult;
@@ -114,11 +115,32 @@ export const runDefaultAction = async (
 export const buildCliConfig = (options: CliOptions): RepomixConfigCli => {
   const cliConfig: RepomixConfigCli = {};
 
+  // 验证文件选项（只有当files是字符串或字符串数组时才验证）
+  if (typeof options.files === 'string' || Array.isArray(options.files)) {
+    const fileOptionsErrors = validateFileOptions({
+      files: options.files,
+      flatten: options.flatten
+    });
+    
+    if (fileOptionsErrors.length > 0) {
+      throw new RepomixError(`文件选项错误: ${fileOptionsErrors.join('; ')}`);
+    }
+  }
+
   if (options.output) {
     cliConfig.output = { filePath: options.output };
   }
   if (options.include) {
     cliConfig.include = splitPatterns(options.include);
+  }
+  
+  // 处理文件模式选项（只有当files是字符串或字符串数组时才处理）
+  if (typeof options.files === 'string' || Array.isArray(options.files)) {
+    const filePatterns = parseFilePatterns(options.files);
+    cliConfig.files = {
+      patterns: filePatterns,
+      flatten: options.flatten || false
+    };
   }
   if (options.ignore) {
     cliConfig.ignore = { customPatterns: splitPatterns(options.ignore) };
