@@ -23,15 +23,8 @@ export const collectFiles = async (
     initTaskRunner,
   },
 ): Promise<FileCollectResults> => {
-  process.stderr.write('=== collectFiles called ===\n');
-  process.stderr.write(`File paths: ${JSON.stringify(filePaths)}\n`);
-  process.stderr.write(`Root dir: ${rootDir}\n`);
-  process.stderr.write(`DEBUG: collectFiles called with ${filePaths.length} files\n`);
-  process.stderr.write(`DEBUG: rootDir: ${rootDir}\n`);
-  process.stderr.write(`DEBUG: config files patterns: ${JSON.stringify(config.files?.patterns)}\n`);
-  process.stderr.write(`DEBUG: config files flatten: ${config.files?.flatten}\n`);
-  // 添加更多调试信息
-  process.stderr.write(`DEBUG: filePaths array: ${JSON.stringify(filePaths)}\n`);
+
+
   
   // 临时禁用工作进程模式，直接调用文件收集逻辑
   const rawFiles: RawFile[] = [];

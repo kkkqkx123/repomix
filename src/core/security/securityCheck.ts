@@ -22,6 +22,6 @@ export const runSecurityCheck = async (
     initTaskRunner,
   },
 ): Promise<SuspiciousFileResult[]> => {
-  console.log('DEBUG: runSecurityCheck called with', rawFiles.length, 'files');
+
   return [];
 };

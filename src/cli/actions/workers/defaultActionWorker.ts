@@ -64,9 +64,6 @@ async function defaultActionWorker(
       const filePatterns = config.files?.patterns;
       const flattenPathsOption = config.files?.flatten;
       
-      console.log('DEBUG: File patterns from config:', filePatterns);
-      console.log('DEBUG: Flatten paths option:', flattenPathsOption);
-      
       if (filePatterns && filePatterns.length > 0) {
         // 如果有文件模式，使用文件模式匹配逻辑
         logger.trace(`Worker: Using file patterns from config: ${filePatterns.join(', ')}`);
@@ -103,9 +100,6 @@ async function defaultActionWorker(
       // 提取文件模式和扁平化选项
       const filePatterns = config.files?.patterns;
       const flattenPathsOption = config.files?.flatten;
-      
-      console.log('DEBUG: File patterns from config (directory):', filePatterns);
-      console.log('DEBUG: Flatten paths option (directory):', flattenPathsOption);
 
       packResult = await pack(
         targetPaths, 

@@ -21,9 +21,8 @@ export const processFiles = async (
     getFileManipulator,
   },
 ): Promise<ProcessedFile[]> => {
-  console.log('DEBUG: processFiles called with', rawFiles.length, 'files');
-  console.log('DEBUG: config files patterns:', config.files?.patterns);
-  console.log('DEBUG: config files flatten:', config.files?.flatten);
+
+
   
   const results: ProcessedFile[] = [];
   
