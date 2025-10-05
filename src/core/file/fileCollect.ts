@@ -23,60 +23,42 @@ export const collectFiles = async (
     initTaskRunner,
   },
 ): Promise<FileCollectResults> => {
-  const taskRunner = deps.initTaskRunner<FileCollectTask, FileCollectResult>({
-    numOfTasks: filePaths.length,
-    workerPath: new URL('./workers/fileCollectWorker.js', import.meta.url).href,
-    runtime: 'worker_threads',
-  });
-  const tasks = filePaths.map(
-    (filePath) =>
-      ({
-        filePath,
-        rootDir,
-        maxFileSize: config.input.maxFileSize,
-      }) satisfies FileCollectTask,
-  );
-
-  try {
-    const startTime = process.hrtime.bigint();
-    logger.trace(`Starting file collection for ${filePaths.length} files using worker pool`);
-
-    let completedTasks = 0;
-    const totalTasks = tasks.length;
-
-    const results = await Promise.all(
-      tasks.map((task) =>
-        taskRunner.run(task).then((result) => {
-          completedTasks++;
-          progressCallback(`Collect file... (${completedTasks}/${totalTasks}) ${pc.dim(task.filePath)}`);
-          logger.trace(`Collect files... (${completedTasks}/${totalTasks}) ${task.filePath}`);
-          return result;
-        }),
-      ),
-    );
-
-    const endTime = process.hrtime.bigint();
-    const duration = Number(endTime - startTime) / 1e6;
-    logger.trace(`File collection completed in ${duration.toFixed(2)}ms`);
-
-    const rawFiles: RawFile[] = [];
-    const skippedFiles: SkippedFileInfo[] = [];
-
-    for (const result of results) {
-      if (result.rawFile) {
-        rawFiles.push(result.rawFile);
-      }
-      if (result.skippedFile) {
-        skippedFiles.push(result.skippedFile);
-      }
+  process.stderr.write('=== collectFiles called ===\n');
+  process.stderr.write(`File paths: ${JSON.stringify(filePaths)}\n`);
+  process.stderr.write(`Root dir: ${rootDir}\n`);
+  process.stderr.write(`DEBUG: collectFiles called with ${filePaths.length} files\n`);
+  process.stderr.write(`DEBUG: rootDir: ${rootDir}\n`);
+  process.stderr.write(`DEBUG: config files patterns: ${JSON.stringify(config.files?.patterns)}\n`);
+  process.stderr.write(`DEBUG: config files flatten: ${config.files?.flatten}\n`);
+  // 添加更多调试信息
+  process.stderr.write(`DEBUG: filePaths array: ${JSON.stringify(filePaths)}\n`);
+  
+  // 临时禁用工作进程模式，直接调用文件收集逻辑
+  const rawFiles: RawFile[] = [];
+  const skippedFiles: SkippedFileInfo[] = [];
+  
+  for (let i = 0; i < filePaths.length; i++) {
+    const filePath = filePaths[i];
+    progressCallback(`Collect file... (${i + 1}/${filePaths.length}) ${pc.dim(filePath)}`);
+    
+    try {
+      // 直接读取文件内容（简化版本）
+      const fs = await import('node:fs/promises');
+      const path = await import('node:path');
+      const absolutePath = path.resolve(rootDir, filePath);
+      const content = await fs.readFile(absolutePath, 'utf-8');
+      
+      rawFiles.push({
+        path: filePath,
+        content: content
+      });
+    } catch (error) {
+      skippedFiles.push({
+        path: filePath,
+        reason: 'encoding-error'
+      });
     }
-
-    return { rawFiles, skippedFiles };
-  } catch (error) {
-    logger.error('Error during file collection:', error);
-    throw error;
-  } finally {
-    // Always cleanup worker pool
-    await taskRunner.cleanup();
   }
+  
+  return { rawFiles, skippedFiles };
 };

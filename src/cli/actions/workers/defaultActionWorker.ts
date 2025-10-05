@@ -60,18 +60,42 @@ async function defaultActionWorker(
       // File paths were already read from stdin in the main process
       logger.trace(`Worker: Processing ${stdinFilePaths.length} files from stdin`);
 
-      // Use pack with predefined files from stdin
-      packResult = await pack(
-        [cwd],
-        config,
-        (message) => {
-          spinner.update(message);
-        },
-        {},
-        stdinFilePaths,
-        undefined, // filePatterns
-        undefined  // flattenPathsOption
-      );
+      // 检查是否有文件模式配置，如果有，优先使用文件模式匹配
+      const filePatterns = config.files?.patterns;
+      const flattenPathsOption = config.files?.flatten;
+      
+      console.log('DEBUG: File patterns from config:', filePatterns);
+      console.log('DEBUG: Flatten paths option:', flattenPathsOption);
+      
+      if (filePatterns && filePatterns.length > 0) {
+        // 如果有文件模式，使用文件模式匹配逻辑
+        logger.trace(`Worker: Using file patterns from config: ${filePatterns.join(', ')}`);
+        packResult = await pack(
+          [cwd],
+          config,
+          (message) => {
+            spinner.update(message);
+          },
+          {},
+          undefined, // explicitFiles
+          filePatterns,
+          flattenPathsOption
+        );
+      } else {
+        // 否则使用stdin文件路径
+        logger.trace(`Worker: Using stdin file paths`);
+        packResult = await pack(
+          [cwd],
+          config,
+          (message) => {
+            spinner.update(message);
+          },
+          {},
+          stdinFilePaths,
+          undefined, // filePatterns
+          undefined  // flattenPathsOption
+        );
+      }
     } else {
       // Handle directory processing
       const targetPaths = directories.map((directory) => path.resolve(cwd, directory));
@@ -79,6 +103,9 @@ async function defaultActionWorker(
       // 提取文件模式和扁平化选项
       const filePatterns = config.files?.patterns;
       const flattenPathsOption = config.files?.flatten;
+      
+      console.log('DEBUG: File patterns from config (directory):', filePatterns);
+      console.log('DEBUG: Flatten paths option (directory):', flattenPathsOption);
 
       packResult = await pack(
         targetPaths, 

@@ -21,48 +21,36 @@ export const processFiles = async (
     getFileManipulator,
   },
 ): Promise<ProcessedFile[]> => {
-  const taskRunner = deps.initTaskRunner<FileProcessTask, ProcessedFile>({
-    numOfTasks: rawFiles.length,
-    workerPath: new URL('./workers/fileProcessWorker.js', import.meta.url).href,
-    // High memory usage and leak risk
-    runtime: 'worker_threads',
-  });
-  const tasks = rawFiles.map(
-    (rawFile, _index) =>
-      ({
-        rawFile,
-        config,
-      }) satisfies FileProcessTask,
-  );
-
-  try {
-    const startTime = process.hrtime.bigint();
-    logger.trace(`Starting file processing for ${rawFiles.length} files using worker pool`);
-
-    let completedTasks = 0;
-    const totalTasks = tasks.length;
-
-    const results = await Promise.all(
-      tasks.map((task) =>
-        taskRunner.run(task).then((result) => {
-          completedTasks++;
-          progressCallback(`Processing file... (${completedTasks}/${totalTasks}) ${pc.dim(task.rawFile.path)}`);
-          logger.trace(`Processing file... (${completedTasks}/${totalTasks}) ${task.rawFile.path}`);
-          return result;
-        }),
-      ),
-    );
-
-    const endTime = process.hrtime.bigint();
-    const duration = Number(endTime - startTime) / 1e6;
-    logger.trace(`File processing completed in ${duration.toFixed(2)}ms`);
-
-    return results;
-  } catch (error) {
-    logger.error('Error during file processing:', error);
-    throw error;
-  } finally {
-    // Always cleanup worker pool
-    await taskRunner.cleanup();
+  console.log('DEBUG: processFiles called with', rawFiles.length, 'files');
+  console.log('DEBUG: config files patterns:', config.files?.patterns);
+  console.log('DEBUG: config files flatten:', config.files?.flatten);
+  
+  const results: ProcessedFile[] = [];
+  
+  for (let i = 0; i < rawFiles.length; i++) {
+    const rawFile = rawFiles[i];
+    const manipulator = deps.getFileManipulator(rawFile.path);
+    
+    progressCallback(`Processing file... (${i + 1}/${rawFiles.length}) ${pc.dim(rawFile.path)}`);
+    logger.trace(`Processing file... (${i + 1}/${rawFiles.length}) ${rawFile.path}`);
+    
+    let processedFile: ProcessedFile;
+    
+    if (manipulator) {
+      processedFile = {
+        path: rawFile.path,
+        content: manipulator.removeComments(rawFile.content),
+      };
+    } else {
+      processedFile = {
+        path: rawFile.path,
+        content: rawFile.content,
+      };
+    }
+    
+    results.push(processedFile);
   }
+  
+  logger.trace(`File processing completed for ${rawFiles.length} files`);
+  return results;
 };

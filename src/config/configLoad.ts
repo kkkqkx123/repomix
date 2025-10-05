@@ -140,6 +140,11 @@ export const mergeConfigs = (
         ...(cliConfig.ignore?.customPatterns || []),
       ],
     },
+    files: {
+      ...baseConfig.files,
+      ...fileConfig.files,
+      ...cliConfig.files,
+    },
     security: {
       ...baseConfig.security,
       ...fileConfig.security,

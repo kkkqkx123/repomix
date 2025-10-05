@@ -131,6 +131,12 @@ export const repomixConfigDefaultSchema = z.object({
       enableSecurityCheck: z.boolean().default(true),
     })
     .default({}),
+  files: z
+    .object({
+      patterns: z.array(z.string()).default([]),
+      flatten: z.boolean().default(false),
+    })
+    .default({}),
   tokenCount: z
     .object({
       encoding: z

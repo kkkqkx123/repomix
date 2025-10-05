@@ -50,6 +50,8 @@ export const runDefaultAction = async (
   const config: RepomixConfigMerged = mergeConfigs(cwd, fileConfig, cliConfig);
   logger.trace('Merged config:', config);
 
+  console.log('DEBUG: Final config files:', config.files);
+
   // Handle stdin processing in main process (before worker creation)
   // This is necessary because child_process workers don't inherit stdin
   let stdinFilePaths: string[] | undefined;
@@ -126,6 +128,9 @@ export const buildCliConfig = (options: CliOptions): RepomixConfigCli => {
       throw new RepomixError(`文件选项错误: ${fileOptionsErrors.join('; ')}`);
     }
   }
+  
+  console.log('DEBUG: CLI options.files:', options.files);
+  console.log('DEBUG: CLI options.flatten:', options.flatten);
 
   if (options.output) {
     cliConfig.output = { filePath: options.output };
@@ -141,6 +146,8 @@ export const buildCliConfig = (options: CliOptions): RepomixConfigCli => {
       patterns: filePatterns,
       flatten: options.flatten || false
     };
+    console.log('DEBUG: Parsed file patterns:', filePatterns);
+    console.log('DEBUG: CLI config files:', cliConfig.files);
   }
   if (options.ignore) {
     cliConfig.ignore = { customPatterns: splitPatterns(options.ignore) };
