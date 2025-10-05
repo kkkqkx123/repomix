@@ -6,8 +6,8 @@ import { sortPaths } from './file/filePathSort.js';
 import { processFiles } from './file/fileProcess.js';
 import { searchFiles } from './file/fileSearch.js';
 import type { ProcessedFile } from './file/fileTypes.js';
-import { getGitDiffs } from './git/gitDiffHandle.js';
-import { getGitLogs } from './git/gitLogHandle.js';
+import { getGitDiffs, type GitDiffResult } from './git/gitDiffHandle.js';
+import { getGitLogs, type GitLogResult } from './git/gitLogHandle.js';
 import { calculateMetrics } from './metrics/calculateMetrics.js';
 import { generateOutput } from './output/outputGenerate.js';
 import { copyToClipboardIfEnabled } from './packager/copyToClipboardIfEnabled.js';
@@ -136,12 +136,18 @@ export const pack = async (
   }
 
   // Get git diffs if enabled - run this before security check
-  progressCallback('Getting git diffs...');
-  const gitDiffResult = await deps.getGitDiffs(rootDirs, config);
+  let gitDiffResult: GitDiffResult | undefined;
+  if (config.output.git?.includeDiffs) {
+    progressCallback('Getting git diffs...');
+    gitDiffResult = await deps.getGitDiffs(rootDirs, config);
+  }
 
   // Get git logs if enabled - run this before security check
-  progressCallback('Getting git logs...');
-  const gitLogResult = await deps.getGitLogs(rootDirs, config);
+  let gitLogResult: GitLogResult | undefined;
+  if (config.output.git?.includeLogs) {
+    progressCallback('Getting git logs...');
+    gitLogResult = await deps.getGitLogs(rootDirs, config);
+  }
 
   // Run security check and get filtered safe files
   const { safeFilePaths, safeRawFiles, suspiciousFilesResults, suspiciousGitDiffResults, suspiciousGitLogResults } =

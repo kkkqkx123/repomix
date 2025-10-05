@@ -31,10 +31,13 @@ const calculateMarkdownDelimiter = (files: ReadonlyArray<ProcessedFile>): string
 };
 
 const createRenderContext = (outputGeneratorContext: OutputGeneratorContext): RenderContext => {
+  const gitDiffEnabled = outputGeneratorContext.config.output.git?.includeDiffs;
+  const gitLogEnabled = outputGeneratorContext.config.output.git?.includeLogs;
+  
   return {
     generationHeader: generateHeader(outputGeneratorContext.config, outputGeneratorContext.generationDate),
     summaryPurpose: generateSummaryPurpose(outputGeneratorContext.config),
-    summaryFileFormat: generateSummaryFileFormat(),
+    summaryFileFormat: generateSummaryFileFormat(outputGeneratorContext.config),
     summaryUsageGuidelines: generateSummaryUsageGuidelines(
       outputGeneratorContext.config,
       outputGeneratorContext.instruction,
@@ -49,60 +52,77 @@ const createRenderContext = (outputGeneratorContext: OutputGeneratorContext): Re
     filesEnabled: outputGeneratorContext.config.output.files,
     escapeFileContent: outputGeneratorContext.config.output.parsableStyle,
     markdownCodeBlockDelimiter: calculateMarkdownDelimiter(outputGeneratorContext.processedFiles),
-    gitDiffEnabled: outputGeneratorContext.config.output.git?.includeDiffs,
-    gitDiffWorkTree: outputGeneratorContext.gitDiffResult?.workTreeDiffContent,
-    gitDiffStaged: outputGeneratorContext.gitDiffResult?.stagedDiffContent,
-    gitLogEnabled: outputGeneratorContext.config.output.git?.includeLogs,
-    gitLogContent: outputGeneratorContext.gitLogResult?.logContent,
-    gitLogCommits: outputGeneratorContext.gitLogResult?.commits,
+    gitDiffEnabled: gitDiffEnabled,
+    gitDiffWorkTree: gitDiffEnabled ? outputGeneratorContext.gitDiffResult?.workTreeDiffContent : undefined,
+    gitDiffStaged: gitDiffEnabled ? outputGeneratorContext.gitDiffResult?.stagedDiffContent : undefined,
+    gitLogEnabled: gitLogEnabled,
+    gitLogContent: gitLogEnabled ? outputGeneratorContext.gitLogResult?.logContent : undefined,
+    gitLogCommits: gitLogEnabled ? outputGeneratorContext.gitLogResult?.commits : undefined,
   };
 };
 
 const generateParsableXmlOutput = async (renderContext: RenderContext): Promise<string> => {
   const xmlBuilder = new XMLBuilder({ ignoreAttributes: false });
-  const xmlDocument = {
-    repomix: {
-      file_summary: renderContext.fileSummaryEnabled
-        ? {
-            '#text': renderContext.generationHeader,
-            purpose: renderContext.summaryPurpose,
-            file_format: `${renderContext.summaryFileFormat}
+  
+  // 构建XML文档对象，使用展开运算符动态包含字段
+  const xmlDocument: any = {
+    repomix: {}
+  };
+  
+  // 动态添加字段，只有当它们有值时
+  if (renderContext.fileSummaryEnabled) {
+    xmlDocument.repomix.file_summary = {
+      '#text': renderContext.generationHeader,
+      purpose: renderContext.summaryPurpose,
+      file_format: `${renderContext.summaryFileFormat}
 5. Repository files, each consisting of:
   - File path as an attribute
   - Full contents of the file`,
-            usage_guidelines: renderContext.summaryUsageGuidelines,
-            notes: renderContext.summaryNotes,
-          }
-        : undefined,
-      user_provided_header: renderContext.headerText,
-      directory_structure: renderContext.directoryStructureEnabled ? renderContext.treeString : undefined,
-      files: renderContext.filesEnabled
-        ? {
-            '#text': "This section contains the contents of the repository's files.",
-            file: renderContext.processedFiles.map((file) => ({
-              '#text': file.content,
-              '@_path': file.path,
-            })),
-          }
-        : undefined,
-      git_diffs: renderContext.gitDiffEnabled
-        ? {
-            git_diff_work_tree: renderContext.gitDiffWorkTree,
-            git_diff_staged: renderContext.gitDiffStaged,
-          }
-        : undefined,
-      git_logs: renderContext.gitLogEnabled
-        ? {
-            git_log_commit: renderContext.gitLogCommits?.map((commit) => ({
-              date: commit.date,
-              message: commit.message,
-              files: commit.files.map((file) => ({ '#text': file })),
-            })),
-          }
-        : undefined,
-      instruction: renderContext.instruction ? renderContext.instruction : undefined,
-    },
-  };
+      usage_guidelines: renderContext.summaryUsageGuidelines,
+      notes: renderContext.summaryNotes,
+    };
+  }
+  
+  if (renderContext.headerText) {
+    xmlDocument.repomix.user_provided_header = renderContext.headerText;
+  }
+  
+  if (renderContext.directoryStructureEnabled) {
+    xmlDocument.repomix.directory_structure = renderContext.treeString;
+  }
+  
+  if (renderContext.filesEnabled) {
+    xmlDocument.repomix.files = {
+      '#text': "This section contains the contents of the repository's files.",
+      file: renderContext.processedFiles.map((file) => ({
+        '#text': file.content,
+        '@_path': file.path,
+      })),
+    };
+  }
+  
+  // 只有当Git差异启用时才包含git_diffs
+  if (renderContext.gitDiffEnabled) {
+    xmlDocument.repomix.git_diffs = {
+      git_diff_work_tree: renderContext.gitDiffWorkTree,
+      git_diff_staged: renderContext.gitDiffStaged,
+    };
+  }
+  
+  // 只有当Git日志启用时才包含git_logs
+  if (renderContext.gitLogEnabled) {
+    xmlDocument.repomix.git_logs = {
+      git_log_commit: renderContext.gitLogCommits?.map((commit) => ({
+        date: commit.date,
+        message: commit.message,
+        files: commit.files.map((file) => ({ '#text': file })),
+      })),
+    };
+  }
+  
+  if (renderContext.instruction) {
+    xmlDocument.repomix.instruction = renderContext.instruction;
+  }
   try {
     return xmlBuilder.build(xmlDocument);
   } catch (error) {

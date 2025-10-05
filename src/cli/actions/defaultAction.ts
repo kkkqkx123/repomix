@@ -274,12 +274,12 @@ export const buildCliConfig = (options: CliOptions): RepomixConfigCli => {
     };
   }
 
-  if (options.includeDiffs) {
+  if (options.includeDiffs !== undefined) {
     cliConfig.output = {
       ...cliConfig.output,
       git: {
         ...cliConfig.output?.git,
-        includeDiffs: true,
+        includeDiffs: options.includeDiffs,
       },
     };
   }
