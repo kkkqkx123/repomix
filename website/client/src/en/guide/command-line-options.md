@@ -31,6 +31,8 @@
 - `--include-diffs`: Add git diff section showing working tree and staged changes
 - `--include-logs`: Add git commit history with messages and changed files
 - `--include-logs-count <count>`: Number of recent commits to include with --include-logs (default: 50)
+- `--clean`: Enable clean output mode, remove all metadata and Git information (including auto-added instruction files), keep only file contents
+- `--structure`: Generate only the project directory structure without any file contents or other metadata
 
 ## File Selection Options
 - `--include <patterns>`: Include only files matching these glob patterns (comma-separated, e.g., "src/**/*.js,*.md")

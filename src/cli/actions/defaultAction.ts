@@ -298,6 +298,55 @@ export const buildCliConfig = (options: CliOptions): RepomixConfigCli => {
     };
   }
 
+  // Handle --clean option: enable clean output mode
+  if (options.clean) {
+    cliConfig.output = {
+      ...cliConfig.output,
+      // Remove all metadata sections
+      fileSummary: false,
+      directoryStructure: false,
+      // Remove instruction file (auto-added instructions)
+      instructionFilePath: undefined,
+      // Remove Git information
+      git: {
+        ...cliConfig.output?.git,
+        sortByChanges: false,
+        includeDiffs: false,
+        includeLogs: false,
+      },
+      // Keep only essential file contents
+      files: true,
+      // Remove formatting enhancements
+      showLineNumbers: false,
+      // Remove compression to keep original file contents
+      compress: false,
+    };
+  }
+
+  // Handle --structure option: generate only directory structure
+  if (options.structure) {
+    cliConfig.output = {
+      ...cliConfig.output,
+      // Keep only directory structure
+      directoryStructure: true,
+      // Remove all other sections
+      fileSummary: false,
+      files: false,
+      // Remove instruction file
+      instructionFilePath: undefined,
+      // Remove Git information
+      git: {
+        ...cliConfig.output?.git,
+        sortByChanges: false,
+        includeDiffs: false,
+        includeLogs: false,
+      },
+      // Remove formatting enhancements
+      showLineNumbers: false,
+      compress: false,
+    };
+  }
+
   if (options.tokenCountTree !== undefined) {
     cliConfig.output = {
       ...cliConfig.output,

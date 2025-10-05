@@ -180,6 +180,28 @@ repomix --files "**/*.ts" --verbose
 
 路径扁平化功能会增加一些内存使用，但对于大多数项目来说影响很小。
 
+## Git信息控制
+
+### 完全禁用Git信息
+
+为了确保打包输出中不包含任何Git相关信息（如差异信息、提交历史等），可以使用`--no-git-sort-by-changes`参数：
+
+```bash
+# 确保完全去除Git信息
+repomix --files "src/**/*.ts" --no-git-sort-by-changes
+```
+
+### Git相关参数
+
+| 参数 | 功能 | 默认值 |
+|------|------|--------|
+| `--include-logs` | 包含Git提交历史 | false（不包含） |
+| `--include-diffs` | 包含Git差异信息 | false（不包含） |
+| `--no-git-sort-by-changes` | **完全禁用Git相关功能** | false（启用Git排序） |
+| `--clean` | **启用干净输出模式**，移除所有元数据和Git信息，仅保留文件内容 | false（禁用干净模式） |
+
+**重要提示**：即使Git差异默认禁用，在某些情况下工作区的Git状态仍可能被检测到。为确保完全去除Git信息，推荐使用`--no-git-sort-by-changes`参数。
+
 ## 向后兼容性
 
 新的文件模式匹配功能完全向后兼容现有的目录包含功能（`--include`）。您可以继续使用原有的工作流程，或者逐步迁移到新的文件模式匹配方式。

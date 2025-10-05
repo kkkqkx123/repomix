@@ -81,6 +81,28 @@ src/cli/options/
 - [ ] 添加模式冲突检测
 - [ ] 提供迁移指南
 
+## Git信息控制
+
+### 确保完全去除Git信息
+
+为了确保打包输出中不包含任何Git相关信息（如差异信息、提交历史等），可以使用`--no-git-sort-by-changes`参数：
+
+```bash
+# 确保完全去除Git信息
+repomix --files "src/**/*.ts" --no-git-sort-by-changes
+```
+
+### 干净输出模式
+
+使用`--clean`参数可以一次性启用所有确保输出仅包含干净文件所需的配置：
+
+```bash
+# 启用干净输出模式，仅保留文件内容
+repomix --files "src/**/*.ts" --clean
+```
+
+**重要发现**：即使Git差异默认禁用，在某些情况下工作区的Git状态仍可能被检测到。为确保完全去除Git信息，推荐使用`--no-git-sort-by-changes`参数或`--clean`参数。
+
 ## 临时解决方案
 1. 在项目根目录创建`.packinclude`文件
 2. 每行写入一个glob模式：

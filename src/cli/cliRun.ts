@@ -53,6 +53,22 @@ const semanticSuggestionMap: Record<string, string[]> = {
   flatten: ['--flatten'],
   'no-directory': ['--flatten'],
   'flat-structure': ['--flatten'],
+  // clean选项语义映射
+  minimal: ['--clean'],
+  minimalistic: ['--clean'],
+  stripped: ['--clean'],
+  bare: ['--clean'],
+  essential: ['--clean'],
+  'no-metadata': ['--clean'],
+  'no-git': ['--clean'],
+  // structure选项语义映射
+  tree: ['--structure'],
+  hierarchy: ['--structure'],
+  'directory-only': ['--structure'],
+  'folder-structure': ['--structure'],
+  'file-tree': ['--structure'],
+  'project-structure': ['--structure'],
+  'no-contents': ['--structure'],
 };
 
 export const run = async () => {
@@ -143,6 +159,8 @@ export const run = async () => {
           return Number(v);
         },
       )
+      .option('--clean', 'Enable clean output mode (removes all metadata and Git information, keeps only file contents)')
+      .option('--structure', 'Generate only directory structure without any file contents or metadata')
       // File Selection Options
       .optionsGroup('File Selection Options')
       .option(
@@ -232,6 +250,7 @@ export const runCli = async (directories: string[], cwd: string, options: CliOpt
   } else if (options.verbose) {
     logger.setLogLevel(repomixLogLevels.DEBUG);
   } else {
+    // Default to INFO level, explicitly disable debug/trace logs
     logger.setLogLevel(repomixLogLevels.INFO);
   }
 

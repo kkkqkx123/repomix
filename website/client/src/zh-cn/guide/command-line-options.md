@@ -31,6 +31,8 @@
 - `--include-diffs`: 添加显示工作树和暂存更改的git diff部分
 - `--include-logs`: 添加包含消息和更改文件的git提交历史
 - `--include-logs-count <count>`: 与--include-logs一起包含的最新提交数（默认：50）
+- `--clean`: 启用干净输出模式，移除所有元数据和Git信息（包括自动添加的指令文件），仅保留文件内容
+- `--structure`: 仅生成整个项目的目录结构，不包含任何文件内容或其他元数据
 
 ## 文件选择选项
 - `--include <patterns>`: 仅包含与这些glob模式匹配的文件（逗号分隔，例如："src/**/*.js,*.md"）

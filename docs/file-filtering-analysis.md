@@ -32,12 +32,18 @@ Git相关信息默认是禁用的，但可以通过以下参数控制：
 - `--include-logs`：启用Git提交历史（默认禁用）
 - `--include-logs-count <count>`：指定包含的提交数量（默认50）
 - `--include-diffs`：启用Git差异信息（默认禁用）
-- `--no-git-sort-by-changes`：禁用按Git更改频率排序文件
+- `--no-git-sort-by-changes`：**完全禁用Git相关功能**，包括Git差异信息
 
 **当前状态**：
 - ✅ Git日志默认禁用（输出摘要显示"Git Logs: ✖ No git logs included"）
 - ✅ Git差异默认禁用
-- ✅ 无需额外参数即可去除Git信息
+- ✅ 使用`--no-git-sort-by-changes`可以确保完全去除Git信息
+
+**重要发现**：
+即使Git差异默认禁用，在某些情况下工作区的Git状态仍可能被检测到。为确保完全去除Git信息，推荐使用：
+```bash
+node bin/repomix.cjs --files "目标文件" --no-directory-structure --no-git-sort-by-changes
+```
 
 ## 完整解决方案
 
@@ -55,6 +61,9 @@ node bin\repomix.cjs --files "src\cli\actions\defaultAction.ts" --output clean-o
 | `--no-directory-structure` | 去除目录结构信息 | true（包含目录结构） |
 | `--include-logs` | 包含Git提交历史 | false（不包含） |
 | `--include-diffs` | 包含Git差异信息 | false（不包含） |
+| `--no-git-sort-by-changes` | **完全禁用Git相关功能**，确保不包含任何Git信息 | false（启用Git排序） |
+| `--clean` | 启用干净输出模式，移除所有元数据和Git信息（包括自动添加的指令文件），仅保留文件内容 | `false`（禁用干净模式） |
+| `--structure` | 仅生成整个项目的目录结构，不包含任何文件内容或其他元数据 | `false`（禁用结构模式） |
 
 ### 验证结果
 
@@ -159,9 +168,34 @@ if (cliConfig.files) {
 
 **当前功能完全可行**：Repomix已经提供了完整的解决方案来只包含选中的文件内容，去除目录结构信息和Git信息。
 
-**推荐命令**：
+### 推荐命令
+
+**基本用法**：
 ```bash
-node bin\repomix.cjs --files "目标文件路径" --output 输出文件.xml --no-directory-structure
+# 处理指定文件，去除目录结构
+node bin/repomix.cjs --files "src/cli/cliRun.ts" --no-directory-structure
 ```
 
-这个方案已经能够满足只包含选中文件内容的需求，无需进一步的代码修改。
+**推荐用法**：
+```bash
+# 确保完全去除Git信息
+node bin/repomix.cjs --files "src/cli/cliRun.ts" --no-directory-structure --no-git-sort-by-changes
+```
+
+**干净模式**：
+```bash
+# 启用干净输出模式，仅保留文件内容
+node bin/repomix.cjs --files "src/cli/cliRun.ts" --clean
+```
+
+**结构模式**：
+```bash
+# 仅生成项目目录结构，不包含文件内容
+node bin/repomix.cjs --structure
+```
+
+**重要提示**：
+- 使用`--no-git-sort-by-changes`参数可以确保完全去除Git相关信息，包括差异信息和提交历史。
+- 使用`--clean`参数可以一次性启用所有确保输出仅包含干净文件所需的配置，包括禁用元数据、Git信息和格式化增强。
+
+这个方案已经能够满足只包含选中文件内容的需求，无需进一步的代码修改。使用`--no-git-sort-by-changes`参数可以确保完全去除Git相关信息。

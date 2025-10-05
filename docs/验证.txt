@@ -1,3 +1,16 @@
+# 构建项目
 npm run build 
 
+# 验证Git差异控制功能
 node bin/repomix.cjs --files "src/cli/cliRun.ts" --no-directory-structure --no-git-sort-by-changes
+
+# 验证干净输出模式
+node bin/repomix.cjs --files "src/cli/cliRun.ts" --clean
+
+# 验证输出文件是否包含Git差异信息
+# 检查repomix-output.xml文件中是否包含<git_diffs>或<git_logs>标签
+# 如果成功，XML文件中不应该包含这些标签
+
+# 验证干净模式输出
+# 检查repomix-output.xml文件中是否包含元数据部分（如文件摘要、目录结构等）
+# 如果成功，XML文件中应该只包含文件内容，不包含任何元数据

@@ -26,6 +26,8 @@ export interface CliOptions extends OptionValues {
   includeDiffs?: boolean;
   includeLogs?: boolean;
   includeLogsCount?: number;
+  clean?: boolean;
+  structure?: boolean;
 
   // Filter Options
   include?: string;
