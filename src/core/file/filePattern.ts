@@ -1,6 +1,6 @@
-import { globby } from 'globby';
-import path from 'node:path';
 import fs from 'node:fs/promises';
+import path from 'node:path';
+import { globby } from 'globby';
 import { RepomixError } from '../../shared/errorHandle.js';
 import { logger } from '../../shared/logger.js';
 import { escapeGlobPattern } from './fileSearch.js';
@@ -30,20 +30,20 @@ const containsGlobSpecialChars = (pattern: string): boolean => {
  */
 export const matchFilesByPattern = async (
   patterns: string[],
-  options: FilePatternOptions
+  options: FilePatternOptions,
 ): Promise<FilePatternResult> => {
   console.log('=== matchFilesByPattern STARTED ===');
   console.log('Patterns:', patterns);
   console.log('Ignore patterns:', options.ignorePatterns);
   console.log('CWD:', options.cwd);
-  
+
   if (!patterns || patterns.length === 0) {
     throw new RepomixError('No file patterns provided');
   }
 
   logger.trace('Matching files with patterns:', patterns);
   logger.trace('Using ignore patterns:', options.ignorePatterns);
-  
+
   const allFilePaths: string[] = [];
   const allRelativePaths: string[] = [];
 
@@ -52,12 +52,12 @@ export const matchFilesByPattern = async (
     console.log(`Processing pattern: "${pattern}"`);
     console.log(`Contains glob chars: ${containsGlobSpecialChars(pattern)}`);
   }
-  
+
   try {
     // 处理每个模式
     for (const pattern of patterns) {
       let patternFilePaths: string[] = [];
-      
+
       // 检查是否是精确文件路径（不包含glob特殊字符）
       if (!containsGlobSpecialChars(pattern)) {
         console.log(`Trying exact file match for: ${pattern}`);
@@ -81,7 +81,7 @@ export const matchFilesByPattern = async (
           logger.trace(`Exact file not found, trying glob match: ${pattern}`);
         }
       }
-      
+
       // 如果没有找到精确匹配，使用glob匹配
       if (patternFilePaths.length === 0) {
         console.log(`Using glob matching for pattern: ${pattern}`);
@@ -107,13 +107,13 @@ export const matchFilesByPattern = async (
         patternFilePaths = globResult;
         logger.trace(`Glob match found ${globResult.length} files for pattern: ${pattern}`);
       }
-      
+
       // 添加到总结果中
       allFilePaths.push(...patternFilePaths);
-      
+
       // 转换为相对路径
-      const relativePaths = patternFilePaths.map(filePath => 
-        options.absolute ? path.relative(options.cwd, filePath) : filePath
+      const relativePaths = patternFilePaths.map((filePath) =>
+        options.absolute ? path.relative(options.cwd, filePath) : filePath,
       );
       allRelativePaths.push(...relativePaths);
     }
@@ -123,10 +123,10 @@ export const matchFilesByPattern = async (
     const uniqueRelativePaths = [...new Set(allRelativePaths)];
 
     logger.trace(`Matched ${uniqueFilePaths.length} unique files with patterns`);
-    
+
     return {
       filePaths: uniqueFilePaths,
-      relativePaths: uniqueRelativePaths
+      relativePaths: uniqueRelativePaths,
     };
   } catch (error) {
     logger.error('Error matching files by pattern:', error);
@@ -139,13 +139,13 @@ export const matchFilesByPattern = async (
  */
 export const validateFilePatterns = (patterns: string[]): string[] => {
   const invalidPatterns: string[] = [];
-  
+
   for (const pattern of patterns) {
     if (!pattern || typeof pattern !== 'string' || pattern.trim() === '') {
       invalidPatterns.push(pattern);
     }
   }
-  
+
   return invalidPatterns;
 };
 
@@ -153,7 +153,7 @@ export const validateFilePatterns = (patterns: string[]): string[] => {
  * 处理相对路径模式，确保相对于当前工作目录
  */
 export const normalizePatterns = (patterns: string[], cwd: string): string[] => {
-  return patterns.map(pattern => {
+  return patterns.map((pattern) => {
     // 如果模式已经是绝对路径，转换为相对路径
     if (path.isAbsolute(pattern)) {
       return path.relative(cwd, pattern);

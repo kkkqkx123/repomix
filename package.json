@@ -1,6 +1,6 @@
 {
   "name": "repomix",
-  "version": "1.6.1",
+  "version": "1.0.1",
   "description": "A tool to pack repository contents to single file for AI consumption",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
@@ -59,13 +59,13 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git://github.com/yamadashy/repomix.git"
+    "url": "git://github.com/kkkqkx123/repomix.git"
   },
   "bugs": {
-    "url": "https://github.com/yamadashy/repomix/issues"
+    "url": "https://github.com/kkkqkx123/repomix/issues"
   },
-  "author": "Kazuki Yamada <koukun0120@gmail.com>",
-  "homepage": "https://github.com/yamadashy/repomix",
+  "author": "",
+  "homepage": "https://github.com/kkkqkx123/repomix",
   "license": "MIT",
   "publishConfig": {
     "access": "public"

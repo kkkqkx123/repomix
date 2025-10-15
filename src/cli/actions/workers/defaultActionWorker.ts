@@ -63,7 +63,7 @@ async function defaultActionWorker(
       // 检查是否有文件模式配置，如果有，优先使用文件模式匹配
       const filePatterns = config.files?.patterns;
       const flattenPathsOption = config.files?.flatten;
-      
+
       if (filePatterns && filePatterns.length > 0) {
         // 如果有文件模式，使用文件模式匹配逻辑
         logger.trace(`Worker: Using file patterns from config: ${filePatterns.join(', ')}`);
@@ -76,7 +76,7 @@ async function defaultActionWorker(
           {},
           undefined, // explicitFiles
           filePatterns,
-          flattenPathsOption
+          flattenPathsOption,
         );
       } else {
         // 否则使用stdin文件路径
@@ -90,7 +90,7 @@ async function defaultActionWorker(
           {},
           stdinFilePaths,
           undefined, // filePatterns
-          undefined  // flattenPathsOption
+          undefined, // flattenPathsOption
         );
       }
     } else {
@@ -102,15 +102,15 @@ async function defaultActionWorker(
       const flattenPathsOption = config.files?.flatten;
 
       packResult = await pack(
-        targetPaths, 
-        config, 
+        targetPaths,
+        config,
         (message) => {
           spinner.update(message);
         },
         {},
         undefined, // explicitFiles
         filePatterns,
-        flattenPathsOption
+        flattenPathsOption,
       );
     }
 

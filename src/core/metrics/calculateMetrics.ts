@@ -51,10 +51,8 @@ export const calculateMetrics = async (
   // Build token counts only for top files
   const fileTokenCounts: Record<string, number> = {};
   const topFilesLength = Math.min(processedFiles.length, config.output.topFilesLength * 10);
-  const topFiles = [...processedFiles]
-    .sort((a, b) => b.content.length - a.content.length)
-    .slice(0, topFilesLength);
-  
+  const topFiles = [...processedFiles].sort((a, b) => b.content.length - a.content.length).slice(0, topFilesLength);
+
   for (const file of topFiles) {
     fileTokenCounts[file.path] = Math.ceil(file.content.length / 4);
   }

@@ -9,8 +9,8 @@ import { runInitAction } from './actions/initAction.js';
 import { runMcpAction } from './actions/mcpAction.js';
 import { runRemoteAction } from './actions/remoteAction.js';
 import { runVersionAction } from './actions/versionAction.js';
-import type { CliOptions } from './types.js';
 import { createFileOptions, parseFilePatterns, validateFileOptions } from './options/fileOptions.js';
+import type { CliOptions } from './types.js';
 
 // Semantic mapping for CLI suggestions
 // This maps conceptually related terms (not typos) to valid options
@@ -159,7 +159,10 @@ export const run = async () => {
           return Number(v);
         },
       )
-      .option('--clean', 'Enable clean output mode (removes all metadata and Git information, keeps only file contents)')
+      .option(
+        '--clean',
+        'Enable clean output mode (removes all metadata and Git information, keeps only file contents)',
+      )
       .option('--structure', 'Generate only directory structure without any file contents or metadata')
       // File Selection Options
       .optionsGroup('File Selection Options')

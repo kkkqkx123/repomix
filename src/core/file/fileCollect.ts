@@ -23,35 +23,51 @@ export const collectFiles = async (
     initTaskRunner,
   },
 ): Promise<FileCollectResults> => {
+  const maxFileSize = config.input.maxFileSize;
 
+  // Initialize worker pool for file collection
+  const taskRunner = deps.initTaskRunner<FileCollectTask, FileCollectResult>({
+    numOfTasks: filePaths.length,
+    workerPath: new URL('./workers/fileCollectWorker.js', import.meta.url).href,
+    runtime: 'worker_threads',
+  });
 
-  
-  // 临时禁用工作进程模式，直接调用文件收集逻辑
   const rawFiles: RawFile[] = [];
   const skippedFiles: SkippedFileInfo[] = [];
-  
-  for (let i = 0; i < filePaths.length; i++) {
-    const filePath = filePaths[i];
-    progressCallback(`Collect file... (${i + 1}/${filePaths.length}) ${pc.dim(filePath)}`);
-    
-    try {
-      // 直接读取文件内容（简化版本）
-      const fs = await import('node:fs/promises');
-      const path = await import('node:path');
-      const absolutePath = path.resolve(rootDir, filePath);
-      const content = await fs.readFile(absolutePath, 'utf-8');
-      
-      rawFiles.push({
-        path: filePath,
-        content: content
-      });
-    } catch (error) {
-      skippedFiles.push({
-        path: filePath,
-        reason: 'encoding-error'
-      });
+
+  try {
+    // Process files in parallel using worker pool
+    const tasks = filePaths.map((filePath, _index) => ({
+      filePath,
+      rootDir,
+      maxFileSize,
+    }));
+
+    // Process files with progress updates
+    for (let i = 0; i < tasks.length; i++) {
+      const task = tasks[i];
+      progressCallback(`Collect file... (${i + 1}/${tasks.length}) ${pc.dim(task.filePath)}`);
+
+      try {
+        const result = await taskRunner.run(task);
+
+        if (result.rawFile) {
+          rawFiles.push(result.rawFile);
+        } else if (result.skippedFile) {
+          skippedFiles.push(result.skippedFile);
+        }
+      } catch (error) {
+        logger.warn(`Failed to process file ${task.filePath}:`, error);
+        skippedFiles.push({
+          path: task.filePath,
+          reason: 'encoding-error',
+        });
+      }
     }
+  } finally {
+    // Clean up worker pool
+    await taskRunner.cleanup();
   }
-  
+
   return { rawFiles, skippedFiles };
 };

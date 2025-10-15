@@ -2,20 +2,20 @@ import type { RepomixConfigMerged } from '../config/configSchema.js';
 import { logMemoryUsage, withMemoryLogging } from '../shared/memoryUtils.js';
 import type { RepomixProgressCallback } from '../shared/types.js';
 import { collectFiles, type SkippedFileInfo } from './file/fileCollect.js';
+import { collectFilesByPattern } from './file/fileCollector.js';
 import { sortPaths } from './file/filePathSort.js';
 import { processFiles } from './file/fileProcess.js';
 import { searchFiles } from './file/fileSearch.js';
 import type { ProcessedFile } from './file/fileTypes.js';
-import { getGitDiffs, type GitDiffResult } from './git/gitDiffHandle.js';
-import { getGitLogs, type GitLogResult } from './git/gitLogHandle.js';
+import { applyFlattenedPaths, flattenPaths } from './file/pathFlattener.js';
+import { type GitDiffResult, getGitDiffs } from './git/gitDiffHandle.js';
+import { type GitLogResult, getGitLogs } from './git/gitLogHandle.js';
 import { calculateMetrics } from './metrics/calculateMetrics.js';
 import { generateOutput } from './output/outputGenerate.js';
 import { copyToClipboardIfEnabled } from './packager/copyToClipboardIfEnabled.js';
 import { writeOutputToDisk } from './packager/writeOutputToDisk.js';
 import type { SuspiciousFileResult } from './security/securityCheck.js';
 import { validateFileSafety } from './security/validateFileSafety.js';
-import { collectFilesByPattern } from './file/fileCollector.js';
-import { flattenPaths, applyFlattenedPaths } from './file/pathFlattener.js';
 
 export interface PackResult {
   totalFiles: number;
@@ -64,37 +64,41 @@ export const pack = async (
   logMemoryUsage('Pack - Start');
 
   // 优先处理文件模式匹配
-  let filePathsByDir: Array<{rootDir: string; filePaths: string[]}>;
+  let filePathsByDir: Array<{ rootDir: string; filePaths: string[] }>;
   let rawFiles;
   let allSkippedFiles;
-  
+
   if (filePatterns && filePatterns.length > 0) {
     progressCallback('Collecting files by patterns...');
-    const collectionResult = await withMemoryLogging('Collect Files by Pattern', async () =>
-      await collectFilesByPattern({
-        rootDir: rootDirs[0],
-        config,
-        progressCallback,
-        filePatterns,
-        flattenPaths: flattenPathsOption
-      })
+    const collectionResult = await withMemoryLogging(
+      'Collect Files by Pattern',
+      async () =>
+        await collectFilesByPattern({
+          rootDir: rootDirs[0],
+          config,
+          progressCallback,
+          filePatterns,
+          flattenPaths: flattenPathsOption,
+        }),
     );
-    
+
     // 如果启用路径扁平化，处理文件路径
     if (flattenPathsOption) {
       progressCallback('Flattening paths...');
-      const flattenedPaths = flattenPaths(collectionResult.rawFiles.map(file => file.filePath));
+      const flattenedPaths = flattenPaths(collectionResult.rawFiles.map((file) => file.filePath));
       collectionResult.rawFiles = applyFlattenedPaths(collectionResult.rawFiles, flattenedPaths);
     }
-    
+
     // 直接使用收集的文件结果
     rawFiles = collectionResult.rawFiles;
     allSkippedFiles = collectionResult.skippedFiles;
-    
-    filePathsByDir = [{
-      rootDir: rootDirs[0], // 对于文件模式匹配，使用第一个根目录
-      filePaths: collectionResult.rawFiles.map(file => file.filePath)
-    }];
+
+    filePathsByDir = [
+      {
+        rootDir: rootDirs[0], // 对于文件模式匹配，使用第一个根目录
+        filePaths: collectionResult.rawFiles.map((file) => file.filePath),
+      },
+    ];
   } else {
     // 原有逻辑：基于目录搜索文件
     progressCallback('Searching for files...');

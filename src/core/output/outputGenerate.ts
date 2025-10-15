@@ -33,7 +33,7 @@ const calculateMarkdownDelimiter = (files: ReadonlyArray<ProcessedFile>): string
 const createRenderContext = (outputGeneratorContext: OutputGeneratorContext): RenderContext => {
   const gitDiffEnabled = outputGeneratorContext.config.output.git?.includeDiffs;
   const gitLogEnabled = outputGeneratorContext.config.output.git?.includeLogs;
-  
+
   return {
     generationHeader: generateHeader(outputGeneratorContext.config, outputGeneratorContext.generationDate),
     summaryPurpose: generateSummaryPurpose(outputGeneratorContext.config),
@@ -63,12 +63,12 @@ const createRenderContext = (outputGeneratorContext: OutputGeneratorContext): Re
 
 const generateParsableXmlOutput = async (renderContext: RenderContext): Promise<string> => {
   const xmlBuilder = new XMLBuilder({ ignoreAttributes: false });
-  
+
   // 构建XML文档对象，使用展开运算符动态包含字段
   const xmlDocument: any = {
-    repomix: {}
+    repomix: {},
   };
-  
+
   // 动态添加字段，只有当它们有值时
   if (renderContext.fileSummaryEnabled) {
     xmlDocument.repomix.file_summary = {
@@ -82,15 +82,15 @@ const generateParsableXmlOutput = async (renderContext: RenderContext): Promise<
       notes: renderContext.summaryNotes,
     };
   }
-  
+
   if (renderContext.headerText) {
     xmlDocument.repomix.user_provided_header = renderContext.headerText;
   }
-  
+
   if (renderContext.directoryStructureEnabled) {
     xmlDocument.repomix.directory_structure = renderContext.treeString;
   }
-  
+
   if (renderContext.filesEnabled) {
     xmlDocument.repomix.files = {
       '#text': "This section contains the contents of the repository's files.",
@@ -100,7 +100,7 @@ const generateParsableXmlOutput = async (renderContext: RenderContext): Promise<
       })),
     };
   }
-  
+
   // 只有当Git差异启用时才包含git_diffs
   if (renderContext.gitDiffEnabled) {
     xmlDocument.repomix.git_diffs = {
@@ -108,7 +108,7 @@ const generateParsableXmlOutput = async (renderContext: RenderContext): Promise<
       git_diff_staged: renderContext.gitDiffStaged,
     };
   }
-  
+
   // 只有当Git日志启用时才包含git_logs
   if (renderContext.gitLogEnabled) {
     xmlDocument.repomix.git_logs = {
@@ -119,7 +119,7 @@ const generateParsableXmlOutput = async (renderContext: RenderContext): Promise<
       })),
     };
   }
-  
+
   if (renderContext.instruction) {
     xmlDocument.repomix.instruction = renderContext.instruction;
   }

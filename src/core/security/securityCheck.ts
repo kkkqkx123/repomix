@@ -22,6 +22,5 @@ export const runSecurityCheck = async (
     initTaskRunner,
   },
 ): Promise<SuspiciousFileResult[]> => {
-
   return [];
 };

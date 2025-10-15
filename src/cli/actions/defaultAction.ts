@@ -13,6 +13,7 @@ import { logger } from '../../shared/logger.js';
 import { splitPatterns } from '../../shared/patternUtils.js';
 import { initTaskRunner } from '../../shared/processConcurrency.js';
 import { reportResults } from '../cliReport.js';
+import { parseFilePatterns, validateFileOptions } from '../options/fileOptions.js';
 import type { CliOptions } from '../types.js';
 import { runMigrationAction } from './migrationAction.js';
 import type {
@@ -21,7 +22,6 @@ import type {
   PingResult,
   PingTask,
 } from './workers/defaultActionWorker.js';
-import { parseFilePatterns, validateFileOptions } from '../options/fileOptions.js';
 
 export interface DefaultActionRunnerResult {
   packResult: PackResult;
@@ -119,15 +119,13 @@ export const buildCliConfig = (options: CliOptions): RepomixConfigCli => {
   if (typeof options.files === 'string' || Array.isArray(options.files)) {
     const fileOptionsErrors = validateFileOptions({
       files: options.files,
-      flatten: options.flatten
+      flatten: options.flatten,
     });
-    
+
     if (fileOptionsErrors.length > 0) {
       throw new RepomixError(`文件选项错误: ${fileOptionsErrors.join('; ')}`);
     }
   }
-  
-
 
   if (options.output) {
     cliConfig.output = { filePath: options.output };
@@ -135,15 +133,14 @@ export const buildCliConfig = (options: CliOptions): RepomixConfigCli => {
   if (options.include) {
     cliConfig.include = splitPatterns(options.include);
   }
-  
+
   // 处理文件模式选项（只有当files是字符串或字符串数组时才处理）
   if (typeof options.files === 'string' || Array.isArray(options.files)) {
     const filePatterns = parseFilePatterns(options.files);
     cliConfig.files = {
       patterns: filePatterns,
-      flatten: options.flatten || false
+      flatten: options.flatten || false,
     };
-
   }
   if (options.ignore) {
     cliConfig.ignore = { customPatterns: splitPatterns(options.ignore) };

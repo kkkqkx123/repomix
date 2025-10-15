@@ -106,17 +106,14 @@ or other automated processes.
 };
 
 export const generateSummaryFileFormat = (config: RepomixConfigMerged): string => {
-  const parts = [
-    '1. This summary section',
-    '2. Repository information'
-  ];
-  
+  const parts = ['1. This summary section', '2. Repository information'];
+
   if (config.output.directoryStructure) {
     parts.push('3. Directory structure');
   }
-  
+
   parts.push('4. Repository files (if enabled)');
-  
+
   return `
 The content is organized as follows:
 ${parts.join('\n')}

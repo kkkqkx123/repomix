@@ -21,20 +21,17 @@ export const processFiles = async (
     getFileManipulator,
   },
 ): Promise<ProcessedFile[]> => {
-
-
-  
   const results: ProcessedFile[] = [];
-  
+
   for (let i = 0; i < rawFiles.length; i++) {
     const rawFile = rawFiles[i];
     const manipulator = deps.getFileManipulator(rawFile.path);
-    
+
     progressCallback(`Processing file... (${i + 1}/${rawFiles.length}) ${pc.dim(rawFile.path)}`);
     logger.trace(`Processing file... (${i + 1}/${rawFiles.length}) ${rawFile.path}`);
-    
+
     let processedFile: ProcessedFile;
-    
+
     if (manipulator) {
       processedFile = {
         path: rawFile.path,
@@ -46,10 +43,10 @@ export const processFiles = async (
         content: rawFile.content,
       };
     }
-    
+
     results.push(processedFile);
   }
-  
+
   logger.trace(`File processing completed for ${rawFiles.length} files`);
   return results;
 };
