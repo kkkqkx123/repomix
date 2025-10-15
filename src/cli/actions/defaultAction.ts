@@ -67,10 +67,22 @@ export const runDefaultAction = async (
     logger.trace(`Read ${stdinFilePaths.length} file paths from stdin in main process`);
   }
 
-  // Create worker task runner
+  // Create worker task runner with improved path resolution
+  let workerPath: string;
+  try {
+    // Try using import.meta.url first
+    workerPath = new URL('./workers/defaultActionWorker.js', import.meta.url).href;
+  } catch {
+    // Fallback to path resolution
+    const path = await import('node:path');
+    const currentFilePath = new URL(import.meta.url).pathname;
+    const currentDir = path.dirname(currentFilePath);
+    workerPath = path.join(currentDir, 'workers', 'defaultActionWorker.js');
+  }
+
   const taskRunner = initTaskRunner<DefaultActionTask | PingTask, DefaultActionWorkerResult | PingResult>({
     numOfTasks: 1,
-    workerPath: new URL('./workers/defaultActionWorker.js', import.meta.url).href,
+    workerPath: workerPath,
     runtime: 'child_process',
   });
 
