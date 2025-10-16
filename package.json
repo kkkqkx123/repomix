@@ -1,6 +1,6 @@
 {
   "name": "kkkqkx-repomix",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A tool to pack repository contents to single file for AI consumption",
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
