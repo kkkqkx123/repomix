@@ -46,21 +46,32 @@ export const execGitLogFilenames = async (
   deps = {
     execFileAsync,
   },
+  timeout: number = 5000, // 5 seconds timeout for git log operations
 ): Promise<string[]> => {
   try {
-    const result = await deps.execFileAsync('git', [
-      '-C',
-      directory,
-      'log',
-      '--pretty=format:',
-      '--name-only',
-      '-n',
-      maxCommits.toString(),
-    ]);
+    // Use timeout protection for git log commands to prevent hanging in non-git directories
+    const result = await execGitCommandWithTimeout(
+      'git',
+      [
+        '-C',
+        directory,
+        'log',
+        '--pretty=format:',
+        '--name-only',
+        '-n',
+        maxCommits.toString(),
+      ],
+      timeout,
+      { execFileAsync: deps.execFileAsync },
+    );
 
     return result.stdout.split('\n').filter(Boolean);
   } catch (error) {
-    logger.trace('Failed to get git log filenames:', (error as Error).message);
+    if (error instanceof Error && error.message.includes('Git command timed out')) {
+      logger.warn(`Git log command timed out for directory: ${directory}`);
+    } else {
+      logger.trace('Failed to get git log filenames:', (error as Error).message);
+    }
     return [];
   }
 };

@@ -3,7 +3,7 @@ import path from 'node:path';
 import type { RepomixConfigMerged } from '../../config/configSchema.js';
 import { logger } from '../../shared/logger.js';
 import type { ProcessedFile } from '../file/fileTypes.js';
-import { getFileChangeCount, isGitInstalled } from '../git/gitRepositoryHandle.js';
+import { getFileChangeCount, isGitInstalled, isGitRepository } from '../git/gitRepositoryHandle.js';
 
 // Sort files by git change count for output
 export const sortOutputFiles = async (
@@ -12,6 +12,7 @@ export const sortOutputFiles = async (
   deps = {
     getFileChangeCount,
     isGitInstalled,
+    isGitRepository,
   },
 ): Promise<ProcessedFile[]> => {
   // If git sort is not enabled, return original order
@@ -23,7 +24,14 @@ export const sortOutputFiles = async (
   // Check if Git is installed
   const gitInstalled = await deps.isGitInstalled();
   if (!gitInstalled) {
-    logger.trace('Git is not installed');
+    logger.trace('Git is not installed, skipping git-based sorting');
+    return files;
+  }
+
+  // Check if this is a git repository
+  const isGitRepo = await deps.isGitRepository(config.cwd);
+  if (!isGitRepo) {
+    logger.trace('Not a git repository, skipping git-based sorting');
     return files;
   }
 
@@ -32,13 +40,19 @@ export const sortOutputFiles = async (
   try {
     await fs.access(gitFolderPath);
   } catch {
-    logger.trace('Git folder not found');
+    logger.trace('Git folder not found, skipping git-based sorting');
     return files;
   }
 
   try {
     // Get file change counts
     const fileChangeCounts = await deps.getFileChangeCount(config.cwd, config.output.git?.sortByChangesMaxCommits);
+
+    // If no file change counts were retrieved, return original order
+    if (Object.keys(fileChangeCounts).length === 0) {
+      logger.trace('No file change counts available, returning original order');
+      return files;
+    }
 
     const sortedFileChangeCounts = Object.entries(fileChangeCounts).sort((a, b) => b[1] - a[1]);
     logger.trace('Git File change counts max commits:', config.output.git?.sortByChangesMaxCommits);
@@ -50,8 +64,9 @@ export const sortOutputFiles = async (
       const countB = fileChangeCounts[b.path] || 0;
       return countA - countB;
     });
-  } catch {
-    // If git command fails, return original order
+  } catch (error) {
+    // If git command fails, log the error and return original order
+    logger.trace('Git sorting failed, returning original order:', (error as Error).message);
     return files;
   }
 };

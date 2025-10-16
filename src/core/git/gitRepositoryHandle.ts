@@ -6,9 +6,17 @@ export const getFileChangeCount = async (
   maxCommits = 100,
   deps = {
     execGitLogFilenames,
+    isGitRepository,
   },
 ): Promise<Record<string, number>> => {
   try {
+    // First check if this is a git repository
+    const isGitRepo = await deps.isGitRepository(directory);
+    if (!isGitRepo) {
+      logger.trace('Directory is not a git repository, skipping file change count');
+      return {};
+    }
+
     const filenames = await deps.execGitLogFilenames(directory, maxCommits);
 
     const fileChangeCounts: Record<string, number> = {};
