@@ -102,7 +102,20 @@ export interface TaskRunner<T, R> {
 export const initTaskRunner = <T, R>(options: WorkerOptions): TaskRunner<T, R> => {
   const pool = createWorkerPool(options);
   return {
-    run: (task: T) => pool.run(task),
+    run: async (task: T) => {
+      try {
+        return await pool.run(task);
+      } catch (error) {
+        logger.warn('Worker task failed, retrying once:', error);
+        // Retry once in case of transient worker issues
+        try {
+          return await pool.run(task);
+        } catch (retryError) {
+          logger.error('Worker task failed after retry:', retryError);
+          throw retryError;
+        }
+      }
+    },
     cleanup: () => cleanupWorkerPool(pool),
   };
 };

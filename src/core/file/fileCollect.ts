@@ -3,9 +3,9 @@ import type { RepomixConfigMerged } from '../../config/configSchema.js';
 import { logger } from '../../shared/logger.js';
 import { initTaskRunner } from '../../shared/processConcurrency.js';
 import type { RepomixProgressCallback } from '../../shared/types.js';
+import { collectFilesSync } from './fileCollectSync.js';
 import type { RawFile } from './fileTypes.js';
 import type { FileCollectResult, FileCollectTask, SkippedFileInfo } from './workers/fileCollectWorker.js';
-import { collectFilesSync } from './fileCollectSync.js';
 
 export interface FileCollectResults {
   rawFiles: RawFile[];
@@ -30,7 +30,7 @@ export const collectFiles = async (
   try {
     // Determine worker path - try multiple approaches for better compatibility
     let workerPath: string;
-    
+
     try {
       // Method 1: Try using import.meta.url (works in ES modules)
       const currentDir = new URL('.', import.meta.url).href;
@@ -67,7 +67,13 @@ export const collectFiles = async (
         progressCallback(`Collect file... (${i + 1}/${tasks.length}) ${pc.dim(task.filePath)}`);
 
         try {
-          const result = await taskRunner.run(task);
+          // Add timeout to prevent hanging on problematic files
+          const result = await Promise.race([
+            taskRunner.run(task),
+            new Promise<never>((_, reject) =>
+              setTimeout(() => reject(new Error(`Timeout processing file: ${task.filePath}`)), 30000),
+            ),
+          ]);
 
           if (result.rawFile) {
             rawFiles.push(result.rawFile);
@@ -85,8 +91,17 @@ export const collectFiles = async (
 
       return { rawFiles, skippedFiles };
     } finally {
-      // Clean up worker pool
-      await taskRunner.cleanup();
+      // Clean up worker pool with timeout protection
+      try {
+        await Promise.race([
+          taskRunner.cleanup(),
+          new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error('Timeout during worker pool cleanup')), 10000),
+          ),
+        ]);
+      } catch (cleanupError) {
+        logger.warn('Error during worker pool cleanup:', cleanupError);
+      }
     }
   } catch (workerError) {
     // Fallback to synchronous processing if worker pool fails

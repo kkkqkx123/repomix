@@ -6,6 +6,39 @@ import { RepomixError } from '../../shared/errorHandle.js';
 import { logger } from '../../shared/logger.js';
 
 const execFileAsync = promisify(execFile);
+const DEFAULT_GIT_TIMEOUT = 30000; // 30 seconds timeout for git operations
+
+/**
+ * Execute a git command with timeout protection
+ */
+const execGitCommandWithTimeout = async (
+  command: string,
+  args: string[],
+  timeout: number = DEFAULT_GIT_TIMEOUT,
+  deps = {
+    execFileAsync,
+  },
+): Promise<{ stdout: string; stderr: string }> => {
+  try {
+    // Use Promise.race to implement timeout
+    const result = await Promise.race([
+      deps.execFileAsync(command, args),
+      new Promise<never>((_, reject) =>
+        setTimeout(
+          () => reject(new Error(`Git command timed out after ${timeout}ms: ${command} ${args.join(' ')}`)),
+          timeout,
+        ),
+      ),
+    ]);
+    return result;
+  } catch (error) {
+    if (error instanceof Error && error.message.includes('Git command timed out')) {
+      logger.warn(`Git command timeout: ${command} ${args.join(' ')}`);
+      throw error;
+    }
+    throw error;
+  }
+};
 
 export const execGitLogFilenames = async (
   directory: string,
@@ -38,20 +71,31 @@ export const execGitDiff = async (
   deps = {
     execFileAsync,
   },
+  timeout: number = DEFAULT_GIT_TIMEOUT,
 ): Promise<string> => {
   try {
-    const result = await deps.execFileAsync('git', [
-      '-C',
-      directory,
-      'diff',
-      '--no-color', // Avoid ANSI color codes
-      ...options,
-    ]);
+    // Use timeout protection for git diff commands
+    const result = await execGitCommandWithTimeout(
+      'git',
+      [
+        '-C',
+        directory,
+        'diff',
+        '--no-color', // Avoid ANSI color codes
+        ...options,
+      ],
+      timeout,
+      deps,
+    );
 
     return result.stdout || '';
   } catch (error) {
+    if (error instanceof Error && error.message.includes('Git command timed out')) {
+      logger.warn(`Git diff command timed out for directory: ${directory}`);
+      return ''; // Return empty string on timeout instead of hanging
+    }
     logger.trace('Failed to execute git diff:', (error as Error).message);
-    throw error;
+    throw error; // Re-throw the original error to maintain expected behavior
   }
 };
 
@@ -74,11 +118,21 @@ export const execGitRevParse = async (
   deps = {
     execFileAsync,
   },
+  timeout: number = DEFAULT_GIT_TIMEOUT,
 ): Promise<string> => {
   try {
-    const result = await deps.execFileAsync('git', ['-C', directory, 'rev-parse', '--is-inside-work-tree']);
+    const result = await execGitCommandWithTimeout(
+      'git',
+      ['-C', directory, 'rev-parse', '--is-inside-work-tree'],
+      timeout,
+      deps,
+    );
     return result.stdout || '';
   } catch (error) {
+    if (error instanceof Error && error.message.includes('Git command timed out')) {
+      logger.warn(`Git rev-parse command timed out for directory: ${directory}`);
+      throw error; // Re-throw timeout errors so isGitRepository can handle them
+    }
     logger.trace('Failed to execute git rev-parse:', (error as Error).message);
     throw error;
   }

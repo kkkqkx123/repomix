@@ -1,11 +1,11 @@
+import path from 'node:path';
 import pc from 'picocolors';
 import type { RepomixConfigMerged } from '../../config/configSchema.js';
 import { logger } from '../../shared/logger.js';
 import type { RepomixProgressCallback } from '../../shared/types.js';
+import { readRawFile } from './fileRead.js';
 import type { RawFile } from './fileTypes.js';
 import type { SkippedFileInfo } from './workers/fileCollectWorker.js';
-import { readRawFile } from './fileRead.js';
-import path from 'node:path';
 
 export interface FileCollectResults {
   rawFiles: RawFile[];
@@ -34,7 +34,16 @@ export const collectFilesSync = async (
 
     try {
       const fullPath = path.resolve(rootDir, filePath);
-      const result = await readRawFile(fullPath, maxFileSize);
+      // Add timeout to prevent hanging on problematic files
+      const result = await Promise.race([
+        readRawFile(fullPath, maxFileSize),
+        new Promise<{ content: null; skippedReason: 'encoding-error' }>((resolve) =>
+          setTimeout(() => {
+            logger.warn(`Timeout processing file: ${filePath}`);
+            resolve({ content: null, skippedReason: 'encoding-error' });
+          }, 30000),
+        ),
+      ]);
 
       if (result.content !== null) {
         rawFiles.push({
