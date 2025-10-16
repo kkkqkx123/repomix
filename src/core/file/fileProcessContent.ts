@@ -20,10 +20,7 @@ import { truncateBase64Content } from './truncateBase64.js';
  */
 export const processContent = async (rawFile: RawFile, config: RepomixConfigMerged): Promise<string> => {
   const processStartAt = process.hrtime.bigint();
-  console.log(`DEBUG: Config compress value for ${rawFile.path}: ${config.output.compress}`);
-  logger.debug(`Config compress value for ${rawFile.path}: ${config.output.compress}`);
   let processedContent = rawFile.content;
-  const manipulator = getFileManipulator(rawFile.path);
 
   logger.trace(`Processing file: ${rawFile.path}`);
 
@@ -31,12 +28,16 @@ export const processContent = async (rawFile: RawFile, config: RepomixConfigMerg
     processedContent = truncateBase64Content(processedContent);
   }
 
-  if (manipulator && config.output.removeComments) {
-    processedContent = manipulator.removeComments(processedContent);
-  }
+  // Only get manipulator if we need to use it to avoid performance issues with problematic files
+  if (config.output.removeComments || config.output.removeEmptyLines) {
+    const manipulator = getFileManipulator(rawFile.path);
+    if (manipulator && config.output.removeComments) {
+      processedContent = manipulator.removeComments(processedContent);
+    }
 
-  if (config.output.removeEmptyLines && manipulator) {
-    processedContent = manipulator.removeEmptyLines(processedContent);
+    if (config.output.removeEmptyLines && manipulator) {
+      processedContent = manipulator.removeEmptyLines(processedContent);
+    }
   }
 
   processedContent = processedContent.trim();

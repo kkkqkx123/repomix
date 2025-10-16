@@ -1,6 +1,5 @@
 import type { RepomixConfigMerged } from '../../../config/configSchema.js';
 import { setLogLevelByWorkerData } from '../../../shared/logger.js';
-import { cleanupLanguageParser } from '../../treeSitter/parseFile.js';
 import { processContent } from '../fileProcessContent.js';
 import type { ProcessedFile, RawFile } from '../fileTypes.js';
 
@@ -14,7 +13,7 @@ export interface FileProcessTask {
 }
 
 export default async ({ rawFile, config }: FileProcessTask): Promise<ProcessedFile> => {
-  const processedContent = await processContent(rawFile, config);
+ const processedContent = await processContent(rawFile, config);
   return {
     path: rawFile.path,
     content: processedContent,
@@ -23,5 +22,7 @@ export default async ({ rawFile, config }: FileProcessTask): Promise<ProcessedFi
 
 // Export cleanup function for Tinypool teardown
 export const onWorkerTermination = async () => {
+  // Dynamically import cleanupLanguageParser to avoid module-level import issues
+  const { cleanupLanguageParser } = await import('../../treeSitter/parseFile.js');
   await cleanupLanguageParser();
 };

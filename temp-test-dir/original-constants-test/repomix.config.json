@@ -1,10 +1,19 @@
 {
+  "$schema": "https://repomix.com/schemas/latest/schema.json",
   "output": {
-    "filePath": "repomix-output-test.xml",
+    "filePath": "repomix-output.xml",
+    "style": "xml",
+    "compress": false,
+    "truncateBase64": false,
+    "removeComments": false,
+    "removeEmptyLines": false,
     "git": {
       "sortByChanges": false,
       "includeDiffs": false,
       "includeLogs": false
     }
+  },
+  "security": {
+    "enableSecurityCheck": false
   }
 }

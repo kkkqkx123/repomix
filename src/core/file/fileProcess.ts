@@ -25,18 +25,26 @@ export const processFiles = async (
 
   for (let i = 0; i < rawFiles.length; i++) {
     const rawFile = rawFiles[i];
-    const manipulator = deps.getFileManipulator(rawFile.path);
 
     progressCallback(`Processing file... (${i + 1}/${rawFiles.length}) ${pc.dim(rawFile.path)}`);
     logger.trace(`Processing file... (${i + 1}/${rawFiles.length}) ${rawFile.path}`);
 
     let processedFile: ProcessedFile;
 
-    if (manipulator) {
-      processedFile = {
-        path: rawFile.path,
-        content: manipulator.removeComments(rawFile.content),
-      };
+    // Only get manipulator if we need to use it to avoid performance issues with problematic files
+    if (config.output.removeComments || config.output.removeEmptyLines) {
+      const manipulator = deps.getFileManipulator(rawFile.path);
+      if (manipulator && config.output.removeComments) {
+        processedFile = {
+          path: rawFile.path,
+          content: manipulator.removeComments(rawFile.content),
+        };
+      } else {
+        processedFile = {
+          path: rawFile.path,
+          content: rawFile.content,
+        };
+      }
     } else {
       processedFile = {
         path: rawFile.path,
