@@ -1,0 +1,10 @@
+{
+  "output": {
+    "filePath": "repomix-output-test.xml",
+    "git": {
+      "sortByChanges": false,
+      "includeDiffs": false,
+      "includeLogs": false
+    }
+  }
+}

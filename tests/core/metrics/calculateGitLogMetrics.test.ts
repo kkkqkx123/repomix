@@ -62,6 +62,10 @@ describe('calculateGitLogMetrics', () => {
     tokenCount: {
       encoding: 'o200k_base' as const,
     },
+    files: {
+      patterns: [],
+      flatten: false,
+    },
     cwd: '/test/project',
   };
 

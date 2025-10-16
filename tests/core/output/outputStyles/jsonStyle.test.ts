@@ -44,6 +44,10 @@ const createMockConfig = (overrides: Partial<RepomixConfigMerged> = {}): Repomix
   tokenCount: {
     encoding: 'cl100k_base',
   },
+  files: {
+    patterns: [],
+    flatten: false,
+  },
   ...overrides,
 });
 

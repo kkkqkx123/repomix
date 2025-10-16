@@ -14,9 +14,11 @@ describe('gitRepositoryHandle', () => {
       const mockFilenames = ['file1.ts', 'file2.ts', 'file1.ts', 'file3.ts', 'file2.ts'];
 
       const mockExecGitLogFilenames = vi.fn().mockResolvedValue(mockFilenames);
+      const mockIsGitRepository = vi.fn().mockResolvedValue(true);
 
       const result = await getFileChangeCount('/test/dir', 5, {
         execGitLogFilenames: mockExecGitLogFilenames,
+        isGitRepository: mockIsGitRepository,
       });
 
       expect(result).toEqual({
@@ -29,9 +31,11 @@ describe('gitRepositoryHandle', () => {
 
     test('should return empty object when git command fails', async () => {
       const mockExecGitLogFilenames = vi.fn().mockRejectedValue(new Error('git command failed'));
+      const mockIsGitRepository = vi.fn().mockResolvedValue(true);
 
       const result = await getFileChangeCount('/test/dir', 5, {
         execGitLogFilenames: mockExecGitLogFilenames,
+        isGitRepository: mockIsGitRepository,
       });
 
       expect(result).toEqual({});
@@ -40,9 +44,11 @@ describe('gitRepositoryHandle', () => {
 
     test('should handle empty git log output', async () => {
       const mockExecGitLogFilenames = vi.fn().mockResolvedValue([]);
+      const mockIsGitRepository = vi.fn().mockResolvedValue(true);
 
       const result = await getFileChangeCount('/test/dir', 5, {
         execGitLogFilenames: mockExecGitLogFilenames,
+        isGitRepository: mockIsGitRepository,
       });
 
       expect(result).toEqual({});

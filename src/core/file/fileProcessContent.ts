@@ -20,6 +20,8 @@ import { truncateBase64Content } from './truncateBase64.js';
  */
 export const processContent = async (rawFile: RawFile, config: RepomixConfigMerged): Promise<string> => {
   const processStartAt = process.hrtime.bigint();
+  console.log(`DEBUG: Config compress value for ${rawFile.path}: ${config.output.compress}`);
+  logger.debug(`Config compress value for ${rawFile.path}: ${config.output.compress}`);
   let processedContent = rawFile.content;
   const manipulator = getFileManipulator(rawFile.path);
 

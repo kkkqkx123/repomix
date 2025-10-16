@@ -225,7 +225,7 @@ export const SYNTAX_PATTERNS: Record<string, RegExp[]> = {
     /self\./m,
     /if\s+__name__\s*==\s*['"']__main__['"']/m,
     /#\s*.*$/m, // Python注释
-    /\"\"\"[\s\S]*?\"\"\"/m, // Python多行注释
+    /"""[\s\S]*?"""/m, // Python多行注释
     /'''[\s\S]*?'''/m
   ],
   javascript: [
@@ -341,7 +341,7 @@ export const SYNTAX_PATTERNS: Record<string, RegExp[]> = {
     /\/\*[\s\S]*?\*\//m
   ],
   ruby: [
-    /require\s+['"`][^'"`]+['"`]/m,
+    /require\s+['"`][^'"\`]+['"`]/m,
     /def\s+\w+/m,
     /class\s+\w+/m,
     /module\s+\w+/m,
@@ -368,7 +368,7 @@ export const SYNTAX_PATTERNS: Record<string, RegExp[]> = {
     /\/\/.*$/m
   ],
   shell: [
-    /#!\/bin\/[a-z]+/m,
+    /#!\/bin\/[^\s]+/m,
     /\$\{?\w+\}?/m, // 变量
     /function\s+\w+\s*\(\s*\)/m,
     /if\s+\[/m,
@@ -452,7 +452,7 @@ export const SYNTAX_PATTERNS: Record<string, RegExp[]> = {
     /\*.*\*/m, // 斜体
     /\[.*\]\(.*\)/m, // 链接
     /!\[.*\]\(.*\)/m, // 图片
-    /```[\s\S]*?```/m, // 代码块
+    /\`\`\`[\s\S]*?\`\`\`/m, // 代码块
     /^>\s+.*$/m, // 引用
     /^\d+\.\s+.*$/m, // 有序列表
     /^-\s+.*$/m, // 无序列表
@@ -480,8 +480,8 @@ export const SYNTAX_PATTERNS: Record<string, RegExp[]> = {
     /#\s*.*$/m
   ],
   makefile: [
-    /^\w+:\s*$/m,
-    /^\w+:\s+.*$/m,
+    /^[a-zA-Z_][a-zA-Z0-9_]*\s*:/m,
+    /^[a-zA-Z_][a-zA-Z0-9_]*\s+:.*$/m,
     /^\t\w+/m, // 命令
     /\$\(\w+\)/m, // 变量
     /\$\{\w+\}/m, // 变量
@@ -512,7 +512,7 @@ export const SYNTAX_PATTERNS: Record<string, RegExp[]> = {
     /#\s*.*$/m
   ],
   lua: [
-    /require\s+['"`][^'"`]+['"`]/m,
+    /require\s+['"`][^'"\`]+['"`]/m,
     /function\s+\w+/m,
     /local\s+\w+/m,
     /print\s*\(/m,

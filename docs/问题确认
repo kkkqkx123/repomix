@@ -1,0 +1,13 @@
+成功定位问题了！`strip-comments`库在处理constants.ts文件时确实会卡死。这证实了我的猜测：问题出在`strip-comments`库对这个特定文件的处理上，而不是tree-sitter解析。
+
+现在问题清楚了：
+
+1. 我们的问题修复（检查`config.output.compress`）是正确的，对tree-sitter解析有效
+2. 但即使`removeComments`设置为false，`getFileManipulator`仍然被调用以备后用
+3. 在worker环境中，当创建`StripCommentsManipulator('javascript')`时，它内部可能在初始化或某些预处理步骤中使用了`strip`库
+4. `strip`库对constants.ts文件中的某些内容（可能是一些复杂的正则表达式模式）有性能问题，导致卡死
+
+PS D:\ide\tool\repomix> node test-strip-comments.cjs ; "(Roo/PS Workaround: 23)" > $null ; start-sleep -milliseconds 200
+测试strip-comments库: D:\ide\tool\repomix\temp-test-dir\original-constants-test\constants.ts
+文件大小: 11991 字符, 559 行
+开始使用strip-comments移除注释...

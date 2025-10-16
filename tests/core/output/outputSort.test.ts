@@ -45,6 +45,7 @@ describe('outputSort', () => {
         await sortOutputFiles(input, mockConfig, {
           getFileChangeCount: mockGetFileChangeCount,
           isGitInstalled: mockIsGitInstalled,
+          isGitRepository: vi.fn().mockResolvedValue(true),
         }),
       ).toEqual(expected);
 
@@ -64,6 +65,7 @@ describe('outputSort', () => {
       const result = await sortOutputFiles(input, mockConfig, {
         getFileChangeCount: mockGetFileChangeCount,
         isGitInstalled: mockIsGitInstalled,
+        isGitRepository: vi.fn().mockResolvedValue(true),
       });
 
       expect(result).toEqual(input);
@@ -82,6 +84,7 @@ describe('outputSort', () => {
       const result = await sortOutputFiles(input, mockConfig, {
         getFileChangeCount: mockGetFileChangeCount,
         isGitInstalled: mockIsGitInstalled,
+        isGitRepository: vi.fn().mockResolvedValue(true),
       });
 
       expect(result).toEqual(input);
@@ -108,6 +111,7 @@ describe('outputSort', () => {
       const result = await sortOutputFiles(input, config, {
         getFileChangeCount: mockGetFileChangeCount,
         isGitInstalled: mockIsGitInstalled,
+        isGitRepository: vi.fn().mockResolvedValue(true),
       });
 
       expect(result).toEqual(input);

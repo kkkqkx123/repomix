@@ -20,6 +20,7 @@ const PROBLEMATIC_PATTERNS = [
   /\\\s*\n/, // Line continuation patterns
   /\/\*.*?\*\//gs, // Multi-line comments with complex content
   /\/\/.*$/gm, // Single-line comments with complex content
+  /\/.*?\/[gimsuy]*/g, // Regex patterns (more comprehensive)
 ];
 
 /**
@@ -30,18 +31,40 @@ const PROBLEMATIC_PATTERNS = [
 const hasProblematicPatterns = (content: string): boolean => {
   logger.trace('Checking for problematic patterns in file');
   
+  // Check file size - very large files can cause performance issues
+  if (content.length > 100000) { // 100KB threshold
+    logger.debug(`File is too large (${content.length} chars), skipping Tree-sitter parsing`);
+    return true;
+  }
+  
+  // Check line count - files with too many lines can cause performance issues
+  const lineCount = content.split('\n').length;
+  if (lineCount > 2000) { // 2000 lines threshold
+    logger.debug(`File has too many lines (${lineCount}), skipping Tree-sitter parsing`);
+    return true;
+  }
+  
   // Check for excessive regex patterns which might cause performance issues
   const regexPatternCount = (content.match(/\/.*?\/[gimsuy]*/g) || []).length;
   logger.trace(`Found ${regexPatternCount} regex patterns in file`);
-  if (regexPatternCount > 50) {
-    logger.debug(`Detected ${regexPatternCount} regex patterns, which may cause performance issues (threshold: 50)`);
+  if (regexPatternCount > 30) { // Lower threshold to 30
+    logger.debug(`Detected ${regexPatternCount} regex patterns, which may cause performance issues (threshold: 30)`);
+    return true;
+  }
+  
+  // Check for excessive RegExp objects which might cause performance issues
+  const regExpObjectCount = (content.match(/new\s+RegExp\s*\(/g) || []).length;
+  if (regExpObjectCount > 10) {
+    logger.debug(`Detected ${regExpObjectCount} RegExp objects, which may cause performance issues (threshold: 10)`);
     return true;
   }
   
   // Check for other problematic patterns
   for (const pattern of PROBLEMATIC_PATTERNS) {
-    if (pattern.test(content)) {
-      logger.debug(`Detected problematic pattern: ${pattern}`);
+    // More thorough check - look for multiple occurrences
+    const matches = content.match(new RegExp(pattern.source, 'g'));
+    if (matches && matches.length > 50) { // If we find more than 50 occurrences
+      logger.debug(`Detected excessive occurrences of problematic pattern: ${pattern} (${matches.length} occurrences)`);
       return true;
     }
   }
@@ -50,9 +73,21 @@ const hasProblematicPatterns = (content: string): boolean => {
   return false;
 };
 
-// TODO: Do something with config: RepomixConfigMerged, it is not used (yet)
+/**
+ * Parse file content using Tree-sitter to extract essential code structure
+ * @param fileContent The content of the file to parse
+ * @param filePath The path of the file being parsed
+ * @param config Repomix configuration
+ * @returns Parsed content or undefined if parsing should be skipped or fails
+ */
 export const parseFile = async (fileContent: string, filePath: string, config: RepomixConfigMerged) => {
   logger.trace(`Starting parseFile for ${filePath}`);
+  
+  // Early exit if compression is not enabled
+  if (!config.output.compress) {
+    logger.trace(`Skipping Tree-sitter parsing for ${filePath} as compression is disabled`);
+    return undefined;
+  }
   
   // Early exit for files with problematic patterns
   if (hasProblematicPatterns(fileContent)) {
@@ -60,76 +95,74 @@ export const parseFile = async (fileContent: string, filePath: string, config: R
     return undefined;
   }
 
-  const languageParser = await getLanguageParserSingleton();
+  return executeWithTimeout(async () => {
+    const languageParser = await getLanguageParserSingleton();
 
-  // Split the file content into individual lines
-  const lines = fileContent.split('\n');
-  if (lines.length < 1) {
-    return '';
-  }
-
-  const lang: SupportedLang | undefined = languageParser.guessTheLang(filePath);
-  if (lang === undefined) {
-    // Language not supported
-    return undefined;
-  }
-
-  const query = await languageParser.getQueryForLang(lang);
-  const parser = await languageParser.getParserForLang(lang);
-  const processedChunks = new Set<string>();
-  const capturedChunks: CapturedChunk[] = [];
-
-  try {
-    logger.trace(`Parsing file content into AST for ${filePath}`);
-    // Parse the file content into an Abstract Syntax Tree (AST)
-    const tree = parser.parse(fileContent);
-
-    // Get the appropriate parse strategy for the language
-    const parseStrategy = createParseStrategy(lang);
-
-    // Create parse context
-    const context: ParseContext = {
-      fileContent,
-      lines,
-      tree,
-      query,
-      config,
-    };
-
-    logger.trace(`Applying query to AST for ${filePath}`);
-    // Apply the query to the AST and get the captures with timeout protection
-    const captures = await executeWithTimeout(
-      () => query.captures(tree.rootNode),
-      30000, // 30 second timeout
-      `Tree-sitter query capture for ${filePath}`
-    );
-
-    // Sort captures by their start position
-    captures.sort((a, b) => a.node.startPosition.row - b.node.startPosition.row);
-
-    for (const capture of captures) {
-      const capturedChunkContent = parseStrategy.parseCapture(capture, lines, processedChunks, context);
-      if (capturedChunkContent !== null) {
-        capturedChunks.push({
-          content: capturedChunkContent.trim(),
-          startRow: capture.node.startPosition.row,
-          endRow: capture.node.endPosition.row,
-        });
-      }
+    // Split the file content into individual lines
+    const lines = fileContent.split('\n');
+    if (lines.length < 1) {
+      return '';
     }
-  } catch (error: unknown) {
-    logger.log(`Error parsing file: ${error}\n`);
-    // 如果Tree-sitter解析失败，返回undefined让调用者使用原始内容
-    return undefined;
-  }
 
-  const filteredChunks = filterDuplicatedChunks(capturedChunks);
-  const mergedChunks = mergeAdjacentChunks(filteredChunks);
+    const lang: SupportedLang | undefined = languageParser.guessTheLang(filePath);
+    if (lang === undefined) {
+      // Language not supported
+      return undefined;
+    }
 
-  return mergedChunks
-    .map((chunk) => chunk.content)
-    .join(`\n${CHUNK_SEPARATOR}\n`)
-    .trim();
+    const query = await languageParser.getQueryForLang(lang);
+    const parser = await languageParser.getParserForLang(lang);
+    const processedChunks = new Set<string>();
+    const capturedChunks: CapturedChunk[] = [];
+
+    try {
+      logger.trace(`Parsing file content into AST for ${filePath}`);
+      // Parse the file content into an Abstract Syntax Tree (AST)
+      const tree = parser.parse(fileContent);
+
+      // Get the appropriate parse strategy for the language
+      const parseStrategy = createParseStrategy(lang);
+
+      // Create parse context
+      const context: ParseContext = {
+        fileContent,
+        lines,
+        tree,
+        query,
+        config,
+      };
+
+      logger.trace(`Applying query to AST for ${filePath}`);
+      // Apply the query to the AST and get the captures
+      const captures = query.captures(tree.rootNode);
+
+      // Sort captures by their start position
+      captures.sort((a, b) => a.node.startPosition.row - b.node.startPosition.row);
+
+      for (const capture of captures) {
+        const capturedChunkContent = parseStrategy.parseCapture(capture, lines, processedChunks, context);
+        if (capturedChunkContent !== null) {
+          capturedChunks.push({
+            content: capturedChunkContent.trim(),
+            startRow: capture.node.startPosition.row,
+            endRow: capture.node.endPosition.row,
+          });
+        }
+      }
+    } catch (error: unknown) {
+      logger.log(`Error parsing file: ${error}\n`);
+      // 如果Tree-sitter解析失败，返回undefined让调用者使用原始内容
+      return undefined;
+    }
+
+    const filteredChunks = filterDuplicatedChunks(capturedChunks);
+    const mergedChunks = mergeAdjacentChunks(filteredChunks);
+
+    return mergedChunks
+      .map((chunk) => chunk.content)
+      .join(`\n${CHUNK_SEPARATOR}\n`)
+      .trim();
+  }, 30000, `Tree-sitter parsing for ${filePath}`);
 };
 
 /**
@@ -140,7 +173,7 @@ export const parseFile = async (fileContent: string, filePath: string, config: R
  * @returns Promise that resolves with the result of fn or rejects on timeout
  */
 const executeWithTimeout = async <T>(
-  fn: () => T,
+  fn: () => T | Promise<T>,
   timeoutMs: number,
   operationName: string
 ): Promise<T> => {
@@ -153,8 +186,20 @@ const executeWithTimeout = async <T>(
     try {
       // Execute the function
       const result = fn();
-      clearTimeout(timeoutId);
-      resolve(result);
+      if (result instanceof Promise) {
+        // Handle async functions
+        result.then(res => {
+          clearTimeout(timeoutId);
+          resolve(res);
+        }).catch(error => {
+          clearTimeout(timeoutId);
+          reject(error);
+        });
+      } else {
+        // Handle sync functions
+        clearTimeout(timeoutId);
+        resolve(result);
+      }
     } catch (error) {
       clearTimeout(timeoutId);
       reject(error);
