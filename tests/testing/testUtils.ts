@@ -41,6 +41,10 @@ export const createMockConfig = (config: DeepPartial<RepomixConfigMerged> = {}):
       ...defaultConfig.tokenCount,
       ...config.tokenCount,
     },
+    files: {
+      ...defaultConfig.files,
+      ...config.files,
+    },
   };
 };
 
