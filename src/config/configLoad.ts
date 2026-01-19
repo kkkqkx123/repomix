@@ -145,11 +145,6 @@ export const mergeConfigs = (
       ...fileConfig.files,
       ...cliConfig.files,
     },
-    security: {
-      ...baseConfig.security,
-      ...fileConfig.security,
-      ...cliConfig.security,
-    },
   };
 
   try {

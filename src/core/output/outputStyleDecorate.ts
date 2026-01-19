@@ -11,7 +11,6 @@ interface ContentInfo {
   processing: {
     commentsRemoved: boolean;
     emptyLinesRemoved: boolean;
-    securityCheckEnabled: boolean;
     showLineNumbers: boolean;
     parsableStyle: boolean;
     compressed: boolean;
@@ -34,7 +33,6 @@ export const analyzeContent = (config: RepomixConfigMerged): ContentInfo => {
     processing: {
       commentsRemoved: config.output.removeComments,
       emptyLinesRemoved: config.output.removeEmptyLines,
-      securityCheckEnabled: config.security.enableSecurityCheck,
       showLineNumbers: config.output.showLineNumbers,
       parsableStyle: config.output.parsableStyle,
       compressed: config.output.compress,
@@ -80,9 +78,6 @@ export const generateHeader = (config: RepomixConfigMerged, _generationDate: str
   }
   if (info.processing.compressed) {
     processingNotes.push('content has been compressed (code blocks are separated by ⋮---- delimiter)');
-  }
-  if (!info.processing.securityCheckEnabled) {
-    processingNotes.push('security check has been disabled');
   }
 
   const processingInfo =
@@ -186,9 +181,6 @@ export const generateSummaryNotes = (config: RepomixConfigMerged): string => {
     notes.push(
       '- Long base64 data strings (e.g., data:image/png;base64,...) have been truncated to reduce token count',
     );
-  }
-  if (!info.processing.securityCheckEnabled) {
-    notes.push('- Security check has been disabled - content may contain sensitive information');
   }
 
   // Sorting notes

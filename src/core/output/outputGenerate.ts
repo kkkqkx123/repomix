@@ -1,7 +1,6 @@
 import fs from 'node:fs/promises';
 import path from 'node:path';
 import { XMLBuilder } from 'fast-xml-parser';
-import Handlebars from 'handlebars';
 import type { RepomixConfigMerged } from '../../config/configSchema.js';
 import { RepomixError } from '../../shared/errorHandle.js';
 import { type FileSearchResult, searchFiles } from '../file/fileSearch.js';
@@ -22,6 +21,7 @@ import {
 import { getMarkdownTemplate } from './outputStyles/markdownStyle.js';
 import { getPlainTemplate } from './outputStyles/plainStyle.js';
 import { getXmlTemplate } from './outputStyles/xmlStyle.js';
+import { processTemplate } from './templateEngine.js';
 
 const calculateMarkdownDelimiter = (files: ReadonlyArray<ProcessedFile>): string => {
   const maxBackticks = files
@@ -204,12 +204,19 @@ const generateHandlebarOutput = async (
       template = getPlainTemplate();
       break;
     default:
-      throw new RepomixError(`Unsupported output style for handlebars template: ${config.output.style}`);
+      throw new RepomixError(`Unsupported output style for template: ${config.output.style}`);
   }
 
   try {
-    const compiledTemplate = Handlebars.compile(template);
-    return `${compiledTemplate(renderContext).trim()}\n`;
+    // Import the helper function for markdown templates
+    let helpers = {};
+    if (config.output.style === 'markdown') {
+      const { getFileExtension } = await import('./outputStyles/markdownStyle.js');
+      helpers = { getFileExtension };
+    }
+
+    const renderedTemplate = processTemplate(template, renderContext as any, helpers);
+    return `${renderedTemplate.trim()}\n`;
   } catch (error) {
     if (error instanceof RangeError && error.message === 'Invalid string length') {
       let largeFilesInfo = '';
@@ -232,7 +239,7 @@ Please try:
       );
     }
     throw new RepomixError(
-      `Failed to compile template: ${error instanceof Error ? error.message : 'Unknown error'}`,
+      `Failed to process template: ${error instanceof Error ? error.message : 'Unknown error'}`,
       error instanceof Error ? { cause: error } : undefined,
     );
   }

@@ -8,6 +8,7 @@ import { calculateGitDiffMetrics } from './calculateGitDiffMetrics.js';
 import { calculateGitLogMetrics } from './calculateGitLogMetrics.js';
 import { calculateOutputMetrics } from './calculateOutputMetrics.js';
 import { calculateSelectiveFileMetrics } from './calculateSelectiveFileMetrics.js';
+import { getTokenCounter } from './tokenCounterFactory.js';
 import type { TokenCountTask } from './workers/calculateMetricsWorker.js';
 
 export interface CalculateMetricsResult {
@@ -32,6 +33,7 @@ export const calculateMetrics = async (
     calculateOutputMetrics,
     calculateGitDiffMetrics,
     calculateGitLogMetrics,
+    getTokenCounter,
     taskRunner: undefined as TaskRunner<TokenCountTask, number> | undefined,
   },
 ): Promise<CalculateMetricsResult> => {
@@ -40,7 +42,10 @@ export const calculateMetrics = async (
 
   const totalFiles = processedFiles.length;
   const totalCharacters = output.length;
-  const totalTokens = Math.ceil(output.length / 4); // 简单的token估算
+
+  // 使用精确的token计数
+  const tokenCounter = deps.getTokenCounter(config.tokenCount.encoding);
+  const totalTokens = tokenCounter.countTokens(output);
 
   // Build character counts for all files
   const fileCharCounts: Record<string, number> = {};
@@ -54,7 +59,24 @@ export const calculateMetrics = async (
   const topFiles = [...processedFiles].sort((a, b) => b.content.length - a.content.length).slice(0, topFilesLength);
 
   for (const file of topFiles) {
-    fileTokenCounts[file.path] = Math.ceil(file.content.length / 4);
+    fileTokenCounts[file.path] = tokenCounter.countTokens(file.content, file.path);
+  }
+
+  // 计算Git差异的token数
+  let gitDiffTokenCount = 0;
+  if (gitDiffResult) {
+    if (gitDiffResult.workTreeDiffContent) {
+      gitDiffTokenCount += tokenCounter.countTokens(gitDiffResult.workTreeDiffContent);
+    }
+    if (gitDiffResult.stagedDiffContent) {
+      gitDiffTokenCount += tokenCounter.countTokens(gitDiffResult.stagedDiffContent);
+    }
+  }
+
+  // 计算Git日志的token数
+  let gitLogTokenCount = 0;
+  if (gitLogResult && gitLogResult.logContent) {
+    gitLogTokenCount = tokenCounter.countTokens(gitLogResult.logContent);
   }
 
   return {
@@ -63,7 +85,7 @@ export const calculateMetrics = async (
     totalTokens,
     fileCharCounts,
     fileTokenCounts,
-    gitDiffTokenCount: 0,
-    gitLogTokenCount: 0,
+    gitDiffTokenCount,
+    gitLogTokenCount,
   };
 };

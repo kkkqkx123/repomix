@@ -5,10 +5,17 @@ import { calculateMetrics } from '../../../src/core/metrics/calculateMetrics.js'
 import { TokenCounter } from '../../../src/core/metrics/TokenCounter.js';
 import { createMockConfig } from '../../testing/testUtils.js';
 
-// Mock the TokenCounter
-vi.mock('../../../src/core/metrics/TokenCounter.js', () => ({
-  TokenCounter: vi.fn(),
-}));
+// Mock the tokenCounterFactory
+vi.mock('../../../src/core/metrics/tokenCounterFactory.js', async () => {
+  const actual = await import('../../../src/core/metrics/tokenCounterFactory.js');
+  return {
+    ...actual,
+    getTokenCounter: vi.fn().mockReturnValue({
+      countTokens: (content: string) => content.split(/\s+/).length, // Simple mock implementation
+      free: () => {},
+    }),
+  };
+});
 
 describe('Diff Token Count Calculation', () => {
   beforeEach(() => {
@@ -78,9 +85,6 @@ index 123..456 100644
         useDefaultPatterns: true,
         customPatterns: [],
       },
-      security: {
-        enableSecurityCheck: true,
-      },
       tokenCount: {
         encoding: 'o200k_base',
       },
@@ -109,6 +113,10 @@ index 123..456 100644
         calculateOutputMetrics: mockCalculateOutputMetrics,
         calculateGitDiffMetrics: vi.fn().mockResolvedValue(25),
         calculateGitLogMetrics: vi.fn().mockResolvedValue({ gitLogTokenCount: 0 }),
+        getTokenCounter: () => ({
+          countTokens: (content: string) => content.split(/\s+/).length, // Simple mock implementation
+          free: () => {},
+        } as any), // Type assertion to bypass TokenCounter interface
         taskRunner: mockTaskRunner,
       },
     );
@@ -160,9 +168,6 @@ index 123..456 100644
         useDefaultPatterns: true,
         customPatterns: [],
       },
-      security: {
-        enableSecurityCheck: true,
-      },
       tokenCount: {
         encoding: 'o200k_base',
       },
@@ -188,6 +193,10 @@ index 123..456 100644
         calculateOutputMetrics: mockCalculateOutputMetrics,
         calculateGitDiffMetrics: vi.fn().mockResolvedValue(0),
         calculateGitLogMetrics: vi.fn().mockResolvedValue({ gitLogTokenCount: 0 }),
+        getTokenCounter: () => ({
+          countTokens: (content: string) => content.split(/\s+/).length, // Simple mock implementation
+          free: () => {},
+        } as any), // Type assertion to bypass TokenCounter interface
         taskRunner: mockTaskRunner,
       },
     );
@@ -237,9 +246,6 @@ index 123..456 100644
         useDefaultPatterns: true,
         customPatterns: [],
       },
-      security: {
-        enableSecurityCheck: true,
-      },
       tokenCount: {
         encoding: 'o200k_base',
       },
@@ -265,6 +271,10 @@ index 123..456 100644
         calculateOutputMetrics: mockCalculateOutputMetrics,
         calculateGitDiffMetrics: vi.fn().mockResolvedValue(0),
         calculateGitLogMetrics: vi.fn().mockResolvedValue({ gitLogTokenCount: 0 }),
+        getTokenCounter: () => ({
+          countTokens: (content: string) => content.split(/\s+/).length, // Simple mock implementation
+          free: () => {},
+        } as any), // Type assertion to bypass TokenCounter interface
         taskRunner: mockTaskRunner,
       },
     );

@@ -45,8 +45,6 @@ export interface CliOptions extends OptionValues {
   init?: boolean;
   global?: boolean;
 
-  // Security Options
-  securityCheck?: boolean;
 
   // Token Count Options
   tokenCountEncoding?: string;

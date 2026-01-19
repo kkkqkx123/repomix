@@ -64,11 +64,6 @@ export const repomixConfigBaseSchema = z.object({
       flatten: z.boolean().optional(),
     })
     .optional(),
-  security: z
-    .object({
-      enableSecurityCheck: z.boolean().optional(),
-    })
-    .optional(),
   tokenCount: z
     .object({
       encoding: z.string().optional(),
@@ -122,11 +117,6 @@ export const repomixConfigDefaultSchema = z.object({
       useGitignore: z.boolean().default(true),
       useDefaultPatterns: z.boolean().default(true),
       customPatterns: z.array(z.string()).default([]),
-    })
-    .default({}),
-  security: z
-    .object({
-      enableSecurityCheck: z.boolean().default(true),
     })
     .default({}),
   files: z

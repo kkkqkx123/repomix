@@ -55,9 +55,6 @@ describe('calculateGitDiffMetrics', () => {
       useDefaultPatterns: true,
       customPatterns: [],
     },
-    security: {
-      enableSecurityCheck: true,
-    },
     tokenCount: {
       encoding: 'o200k_base' as const,
     },

@@ -13,8 +13,6 @@ import { type GitLogResult, getGitLogs } from './git/gitLogHandle.js';
 import { calculateMetrics } from './metrics/calculateMetrics.js';
 import { generateOutput } from './output/outputGenerate.js';
 import { writeOutputToDisk } from './packager/writeOutputToDisk.js';
-import type { SuspiciousFileResult } from './security/securityCheck.js';
-import { validateFileSafety } from './security/validateFileSafety.js';
 
 export interface PackResult {
   totalFiles: number;
@@ -24,9 +22,9 @@ export interface PackResult {
   fileTokenCounts: Record<string, number>;
   gitDiffTokenCount: number;
   gitLogTokenCount: number;
-  suspiciousFilesResults: SuspiciousFileResult[];
-  suspiciousGitDiffResults: SuspiciousFileResult[];
-  suspiciousGitLogResults: SuspiciousFileResult[];
+  suspiciousFilesResults: never[]; // Empty array since security check is removed
+  suspiciousGitDiffResults: never[]; // Empty array since security check is removed
+  suspiciousGitLogResults: never[]; // Empty array since security check is removed
   processedFiles: ProcessedFile[];
   safeFilePaths: string[];
   skippedFiles: SkippedFileInfo[];
@@ -37,7 +35,6 @@ const defaultDeps = {
   collectFiles,
   processFiles,
   generateOutput,
-  validateFileSafety,
   writeOutputToDisk,
   calculateMetrics,
   sortPaths,
@@ -151,11 +148,12 @@ export const pack = async (
     gitLogResult = await deps.getGitLogs(rootDirs, config);
   }
 
-  // Run security check and get filtered safe files
-  const { safeFilePaths, safeRawFiles, suspiciousFilesResults, suspiciousGitDiffResults, suspiciousGitLogResults } =
-    await withMemoryLogging('Security Check', () =>
-      deps.validateFileSafety(rawFiles, progressCallback, config, gitDiffResult, gitLogResult),
-    );
+  // Since security check is removed, use all files directly
+  const safeRawFiles = rawFiles;
+  const safeFilePaths = rawFiles.map(file => file.path);
+  const suspiciousFilesResults: never[] = []; // Empty array since security check is removed
+  const suspiciousGitDiffResults: never[] = []; // Empty array since security check is removed
+  const suspiciousGitLogResults: never[] = []; // Empty array since security check is removed
 
   // Process files (remove comments, etc.)
   progressCallback('Processing files...');

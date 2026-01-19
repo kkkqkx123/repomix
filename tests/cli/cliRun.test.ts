@@ -77,9 +77,6 @@ describe('cliRun', () => {
           useDefaultPatterns: true,
           customPatterns: [],
         },
-        security: {
-          enableSecurityCheck: true,
-        },
         tokenCount: {
           encoding: 'o200k_base',
         },
@@ -131,9 +128,6 @@ describe('cliRun', () => {
           useGitignore: true,
           useDefaultPatterns: true,
           customPatterns: [],
-        },
-        security: {
-          enableSecurityCheck: true,
         },
         tokenCount: {
           encoding: 'o200k_base',
@@ -248,29 +242,6 @@ describe('cliRun', () => {
       );
     });
 
-    test('should handle --no-security-check flag', async () => {
-      await runCli(['.'], process.cwd(), { securityCheck: false });
-
-      expect(defaultAction.runDefaultAction).toHaveBeenCalledWith(
-        ['.'],
-        process.cwd(),
-        expect.objectContaining({
-          securityCheck: false,
-        }),
-      );
-    });
-
-    test('should handle explicit --security-check flag', async () => {
-      await runCli(['.'], process.cwd(), { securityCheck: true });
-
-      expect(defaultAction.runDefaultAction).toHaveBeenCalledWith(
-        ['.'],
-        process.cwd(),
-        expect.objectContaining({
-          securityCheck: true,
-        }),
-      );
-    });
 
     test('should handle explicit --no-gitignore flag', async () => {
       await runCli(['.'], process.cwd(), { gitignore: false });

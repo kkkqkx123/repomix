@@ -59,15 +59,6 @@ describe('generateHeader', () => {
     expect(header).toContain('comments have been removed');
   });
 
-  it('should include security check disabled warning', () => {
-    const config = createMockConfig({
-      security: {
-        enableSecurityCheck: false,
-      },
-    });
-    const header = generateHeader(config, mockDate);
-    expect(header).toContain('security check has been disabled');
-  });
 
   it('should include multiple processing states', () => {
     const config = createMockConfig({
@@ -148,15 +139,11 @@ describe('generateSummaryNotes', () => {
         style: 'xml',
         parsableStyle: true,
       },
-      security: {
-        enableSecurityCheck: false,
-      },
     });
     const notes = generateSummaryNotes(config);
     expect(notes).toContain('Code comments have been removed');
     expect(notes).toContain('Line numbers have been added');
     expect(notes).toContain('Content has been formatted for parsing in xml style');
-    expect(notes).toContain('Security check has been disabled');
   });
 
   it('should handle case with minimal processing', () => {

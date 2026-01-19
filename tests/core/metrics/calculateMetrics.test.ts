@@ -6,12 +6,14 @@ import { calculateSelectiveFileMetrics } from '../../../src/core/metrics/calcula
 import type { RepomixProgressCallback } from '../../../src/shared/types.js';
 import { createMockConfig } from '../../testing/testUtils.js';
 
-vi.mock('../../../src/core/metrics/TokenCounter.js', () => {
+vi.mock('../../../src/core/metrics/tokenCounterFactory.js', async () => {
+  const actual = await import('../../../src/core/metrics/tokenCounterFactory.js');
   return {
-    TokenCounter: vi.fn().mockImplementation(() => ({
-      countTokens: vi.fn().mockReturnValue(10),
-      free: vi.fn(),
-    })),
+    ...actual,
+    getTokenCounter: vi.fn().mockReturnValue({
+      countTokens: (content: string) => Math.ceil(content.length / 4), // Simple mock implementation
+      free: () => {},
+    }),
   };
 });
 vi.mock('../../../src/core/metrics/aggregateMetrics.js');
@@ -64,6 +66,10 @@ describe('calculateMetrics', () => {
       calculateOutputMetrics: () => Promise.resolve(30),
       calculateGitDiffMetrics: () => Promise.resolve(0),
       calculateGitLogMetrics: () => Promise.resolve({ gitLogTokenCount: 0 }),
+      getTokenCounter: () => ({
+        countTokens: (content: string) => Math.ceil(content.length / 4), // Simple mock implementation
+        free: () => {},
+      } as any), // Type assertion to bypass TokenCounter interface
       taskRunner: mockTaskRunner,
     });
 

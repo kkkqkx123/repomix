@@ -14,9 +14,6 @@ export { generateFileTree, generateTreeString, treeToString, type TreeNode } fro
 
 // Git
 
-// Security
-export { runSecurityCheck } from './core/security/securityCheck.js';
-export type { SuspiciousFileResult } from './core/security/securityCheck.js';
 
 // Token Count
 export { TokenCounter } from './core/metrics/TokenCounter.js';

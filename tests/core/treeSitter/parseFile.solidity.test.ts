@@ -36,9 +36,6 @@ describe('Solidity File Parsing', () => {
       useDefaultPatterns: true,
       customPatterns: [],
     },
-    security: {
-      enableSecurityCheck: true,
-    },
     tokenCount: {
       encoding: 'o200k_base',
     },

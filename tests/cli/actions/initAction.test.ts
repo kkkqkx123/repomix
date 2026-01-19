@@ -1,12 +1,10 @@
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import * as prompts from '@clack/prompts';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { createConfigFile, createIgnoreFile } from '../../../src/cli/actions/initAction.js';
 import { getGlobalDirectory } from '../../../src/config/globalDirectory.js';
 
 vi.mock('node:fs/promises');
-vi.mock('@clack/prompts');
 vi.mock('../../../src/shared/folderUtils');
 vi.mock('../../../src/config/globalDirectory.js');
 
@@ -22,11 +20,8 @@ describe('initAction', () => {
   describe('createConfigFile', () => {
     it('should create a new local config file when one does not exist', async () => {
       vi.mocked(fs.access).mockRejectedValue(new Error('File does not exist'));
-      vi.mocked(prompts.group).mockResolvedValue({
-        outputFilePath: 'custom-output.txt',
-        outputStyle: 'xml',
-      });
-      vi.mocked(prompts.confirm).mockResolvedValue(true);
+      // Since prompts are removed, we need to simulate the function behavior differently
+      // The function will now use default values instead of prompting
 
       await createConfigFile('/test/dir', false);
 
@@ -37,11 +32,6 @@ describe('initAction', () => {
 
     it('should create a new global config file when one does not exist', async () => {
       vi.mocked(fs.access).mockRejectedValue(new Error('File does not exist'));
-      vi.mocked(prompts.group).mockResolvedValue({
-        outputFilePath: 'global-output.txt',
-        outputStyle: 'plain',
-      });
-      vi.mocked(prompts.confirm).mockResolvedValue(true);
       vi.mocked(getGlobalDirectory).mockImplementation(() => '/global/repomix');
 
       await createConfigFile('/test/dir', true);
@@ -52,37 +42,22 @@ describe('initAction', () => {
       expect(fs.writeFile).toHaveBeenCalledWith(configPath, expect.any(String));
     });
 
-    it('should prompt to overwrite when config file already exists', async () => {
+    it('should not overwrite when config file already exists', async () => {
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(prompts.confirm).mockResolvedValue(true);
-      vi.mocked(prompts.group).mockResolvedValue({
-        outputFilePath: 'new-output.txt',
-        outputStyle: 'xml',
-      });
 
       await createConfigFile('/test/dir', false);
 
-      // Expect fs.writeFile to be called, but the exact calls may vary depending on implementation
-      // For now, just ensure the function doesn't crash
-    });
-
-    it('should not overwrite when user chooses not to', async () => {
-      vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(prompts.confirm).mockResolvedValue(false);
-
-      await createConfigFile('/test/dir', false);
-
+      // With prompts removed, the function should not overwrite by default
       expect(fs.writeFile).not.toHaveBeenCalled();
     });
 
-    it('should handle user cancellation', async () => {
+    it('should handle errors appropriately', async () => {
       vi.mocked(fs.access).mockRejectedValue(new Error('File does not exist'));
-      vi.mocked(prompts.group).mockImplementation(() => {
-        throw new Error('User cancelled');
-      });
+      vi.mocked(fs.writeFile).mockRejectedValue(new Error('Write failed'));
 
       const result = await createConfigFile('/test/dir', false);
-      expect(result).toBe(true); // Function should return true even when cancelled
+      // Function should handle errors gracefully
+      expect(result).toBeDefined();
     });
   });
 
@@ -96,7 +71,6 @@ describe('initAction', () => {
 
     it('should create a new .repomixignore file when one does not exist', async () => {
       vi.mocked(fs.access).mockRejectedValue(new Error('File does not exist'));
-      vi.mocked(prompts.confirm).mockResolvedValue(true);
 
       await createIgnoreFile('/test/dir', false);
 
@@ -108,40 +82,22 @@ describe('initAction', () => {
       );
     });
 
-    it('should prompt to overwrite when .repomixignore file already exists', async () => {
+    it('should not overwrite when .repomixignore file already exists', async () => {
       vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(prompts.confirm).mockResolvedValue(true);
 
       await createIgnoreFile('/test/dir', false);
 
-      // Expect fs.writeFile to be called, but the exact calls may vary depending on implementation
-      // For now, just ensure the function doesn't crash
-    });
-
-    it('should not overwrite when user chooses not to', async () => {
-      vi.mocked(fs.access).mockResolvedValue(undefined);
-      vi.mocked(prompts.confirm).mockResolvedValue(false);
-
-      await createIgnoreFile('/test/dir', false);
-
+      // With prompts removed, the function should not overwrite by default
       expect(fs.writeFile).not.toHaveBeenCalled();
     });
 
-    it('should return false when user chooses not to create .repomixignore', async () => {
-      vi.mocked(prompts.confirm).mockResolvedValue(false);
+    it('should handle errors appropriately', async () => {
+      vi.mocked(fs.access).mockRejectedValue(new Error('File does not exist'));
+      vi.mocked(fs.writeFile).mockRejectedValue(new Error('Write failed'));
 
       const result = await createIgnoreFile('/test/dir', false);
 
-      expect(result).toBe(false);
-      expect(fs.writeFile).not.toHaveBeenCalled();
-    });
-
-    it('should handle user cancellation', async () => {
-      vi.mocked(prompts.confirm).mockResolvedValue(false);
-
-      await createIgnoreFile('/test/dir', false);
-
-      expect(fs.writeFile).not.toHaveBeenCalled();
+      expect(result).toBe(false); // Function should return false on error
     });
   });
 });

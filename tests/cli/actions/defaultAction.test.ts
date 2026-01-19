@@ -78,9 +78,6 @@ describe('defaultAction', () => {
           customPatterns: [],
         },
         include: [],
-        security: {
-          enableSecurityCheck: true,
-        },
         tokenCount: {
           encoding: 'o200k_base',
         },
@@ -248,15 +245,6 @@ describe('defaultAction', () => {
 
       expect(config.include).toEqual(['src/**/*', 'tests/**/*', 'examples/**/*']);
       expect(config.ignore?.customPatterns).toEqual(['node_modules/**', 'dist/**', 'coverage/**']);
-    });
-
-    it('should handle --no-security-check flag', () => {
-      const options = {
-        securityCheck: false,
-      };
-      const config = buildCliConfig(options);
-
-      expect(config.security?.enableSecurityCheck).toBe(false);
     });
 
     it('should handle --no-file-summary flag', () => {

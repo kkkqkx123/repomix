@@ -19,8 +19,6 @@ import type { GitDiffResult } from '../../src/core/git/gitDiffHandle.js';
 import { generateOutput } from '../../src/core/output/outputGenerate.js';
 import { writeOutputToDisk } from '../../src/core/packager/writeOutputToDisk.js';
 import { pack } from '../../src/core/packager.js';
-import { filterOutUntrustedFiles } from '../../src/core/security/filterOutUntrustedFiles.js';
-import { validateFileSafety } from '../../src/core/security/validateFileSafety.js';
 import type { WorkerOptions } from '../../src/shared/processConcurrency.js';
 import { isWindows } from '../testing/testUtils.js';
 
@@ -119,16 +117,6 @@ describe.runIf(!isWindows)('packager integration', () => {
           return processedFiles;
         },
         generateOutput,
-        validateFileSafety: (rawFiles, progressCallback, config) => {
-          const gitDiffMock: GitDiffResult = {
-            workTreeDiffContent: '',
-            stagedDiffContent: '',
-          };
-          return validateFileSafety(rawFiles, progressCallback, config, gitDiffMock, undefined, {
-            runSecurityCheck: async () => [],
-            filterOutUntrustedFiles,
-          });
-        },
         writeOutputToDisk,
         calculateMetrics: async (
           processedFiles,

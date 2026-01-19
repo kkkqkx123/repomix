@@ -70,9 +70,6 @@ describe('configSchema', () => {
           useGitignore: true,
           customPatterns: ['node_modules'],
         },
-        security: {
-          enableSecurityCheck: true,
-        },
       };
       expect(repomixConfigBaseSchema.parse(validConfig)).toEqual(validConfig);
     });
@@ -130,9 +127,6 @@ describe('configSchema', () => {
           useGitignore: true,
           useDefaultPatterns: true,
           customPatterns: [],
-        },
-        security: {
-          enableSecurityCheck: true,
         },
         tokenCount: {
           encoding: 'o200k_base',
@@ -232,9 +226,6 @@ describe('configSchema', () => {
           useDefaultPatterns: true,
           customPatterns: ['*.log'],
         },
-        security: {
-          enableSecurityCheck: true,
-        },
         tokenCount: {
           encoding: 'o200k_base',
         },
@@ -268,9 +259,6 @@ describe('configSchema', () => {
         ignore: {
           useGitignore: true,
           useDefaultPatterns: true,
-        },
-        security: {
-          enableSecurityCheck: true,
         },
       };
       expect(() => repomixConfigMergedSchema.parse(invalidConfig)).toThrow(z.ZodError);

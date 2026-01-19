@@ -3,7 +3,6 @@ import pc from 'picocolors';
 import type { RepomixConfigMerged } from '../config/configSchema.js';
 import type { SkippedFileInfo } from '../core/file/fileCollect.js';
 import type { PackResult } from '../core/packager.js';
-import type { SuspiciousFileResult } from '../core/security/securityCheck.js';
 import { logger } from '../shared/logger.js';
 import { reportTokenCountTree } from './reporters/tokenCountTreeReporter.js';
 
@@ -28,14 +27,6 @@ export const reportResults = (cwd: string, packResult: PackResult, config: Repom
     logger.log('');
   }
 
-  reportSecurityCheck(
-    cwd,
-    packResult.suspiciousFilesResults,
-    packResult.suspiciousGitDiffResults,
-    packResult.suspiciousGitLogResults,
-    config,
-  );
-  logger.log('');
 
   reportSkippedFiles(cwd, packResult.skippedFiles);
   logger.log('');
@@ -47,26 +38,12 @@ export const reportResults = (cwd: string, packResult: PackResult, config: Repom
 };
 
 export const reportSummary = (packResult: PackResult, config: RepomixConfigMerged) => {
-  let securityCheckMessage = '';
-  if (config.security.enableSecurityCheck) {
-    if (packResult.suspiciousFilesResults.length > 0) {
-      securityCheckMessage = pc.yellow(
-        `${packResult.suspiciousFilesResults.length.toLocaleString()} suspicious file(s) detected and excluded`,
-      );
-    } else {
-      securityCheckMessage = pc.white('✔ No suspicious files detected');
-    }
-  } else {
-    securityCheckMessage = pc.dim('Security check disabled');
-  }
-
   logger.log(pc.white('📊 Pack Summary:'));
   logger.log(pc.dim('────────────────'));
   logger.log(`${pc.white('  Total Files:')} ${pc.white(packResult.totalFiles.toLocaleString())} files`);
   logger.log(`${pc.white(' Total Tokens:')} ${pc.white(packResult.totalTokens.toLocaleString())} tokens`);
   logger.log(`${pc.white('  Total Chars:')} ${pc.white(packResult.totalCharacters.toLocaleString())} chars`);
   logger.log(`${pc.white('       Output:')} ${pc.white(config.output.filePath)}`);
-  logger.log(`${pc.white('     Security:')} ${pc.white(securityCheckMessage)}`);
 
   if (config.output.git?.includeDiffs) {
     let gitDiffsMessage = '';
@@ -93,57 +70,6 @@ export const reportSummary = (packResult: PackResult, config: RepomixConfigMerge
   }
 };
 
-export const reportSecurityCheck = (
-  rootDir: string,
-  suspiciousFilesResults: SuspiciousFileResult[],
-  suspiciousGitDiffResults: SuspiciousFileResult[],
-  suspiciousGitLogResults: SuspiciousFileResult[],
-  config: RepomixConfigMerged,
-) => {
-  if (!config.security.enableSecurityCheck) {
-    return;
-  }
-
-  logger.log(pc.white('🔎 Security Check:'));
-  logger.log(pc.dim('──────────────────'));
-
-  // Report results for files
-  if (suspiciousFilesResults.length === 0) {
-    logger.log(`${pc.green('✔')} ${pc.white('No suspicious files detected.')}`);
-  } else {
-    logger.log(pc.yellow(`${suspiciousFilesResults.length} suspicious file(s) detected and excluded from the output:`));
-    suspiciousFilesResults.forEach((suspiciousFilesResult, index) => {
-      const relativeFilePath = path.relative(rootDir, suspiciousFilesResult.filePath);
-      logger.log(`${pc.white(`${index + 1}.`)} ${pc.white(relativeFilePath)}`);
-      const issueCount = suspiciousFilesResult.messages.length;
-      const issueText = issueCount === 1 ? 'security issue' : 'security issues';
-      logger.log(pc.dim(`   - ${issueCount} ${issueText} detected`));
-    });
-    logger.log(pc.yellow('\nThese files have been excluded from the output for security reasons.'));
-    logger.log(pc.yellow('Please review these files for potential sensitive information.'));
-  }
-
-  // Report git-related security issues
-  reportSuspiciousGitContent('Git diffs', suspiciousGitDiffResults);
-  reportSuspiciousGitContent('Git logs', suspiciousGitLogResults);
-};
-
-const reportSuspiciousGitContent = (title: string, results: SuspiciousFileResult[]) => {
-  if (results.length === 0) {
-    return;
-  }
-
-  logger.log('');
-  logger.log(pc.yellow(`${results.length} security issue(s) found in ${title}:`));
-  results.forEach((suspiciousResult, index) => {
-    logger.log(`${pc.white(`${index + 1}.`)} ${pc.white(suspiciousResult.filePath)}`);
-    const issueCount = suspiciousResult.messages.length;
-    const issueText = issueCount === 1 ? 'security issue' : 'security issues';
-    logger.log(pc.dim(`   - ${issueCount} ${issueText} detected`));
-  });
-  logger.log(pc.yellow(`\nNote: ${title} with security issues are still included in the output.`));
-  logger.log(pc.yellow(`Please review the ${title.toLowerCase()} before sharing the output.`));
-};
 
 export const reportTopFiles = (
   fileCharCounts: Record<string, number>,

@@ -1,12 +1,10 @@
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import * as prompts from '@clack/prompts';
 import { afterEach, beforeEach, describe, expect, test, vi } from 'vitest';
 import { runMigrationAction } from '../../../src/cli/actions/migrationAction.js';
 import { logger } from '../../../src/shared/logger.js';
 
 vi.mock('node:fs/promises');
-vi.mock('@clack/prompts');
 vi.mock('../../../src/shared/logger');
 
 describe('migrationAction', () => {
@@ -72,9 +70,6 @@ describe('migrationAction', () => {
       return '';
     });
 
-    // Mock user confirmation
-    vi.mocked(prompts.confirm).mockResolvedValue(true);
-
     // Run migration
     const result = await runMigrationAction(mockRootDir);
 
@@ -131,9 +126,6 @@ describe('migrationAction', () => {
       return '';
     });
 
-    // Mock user confirmation
-    vi.mocked(prompts.confirm).mockResolvedValue(true);
-
     // Run migration
     await runMigrationAction(mockRootDir);
 
@@ -158,9 +150,6 @@ describe('migrationAction', () => {
       return '';
     });
 
-    // Mock user confirmation
-    vi.mocked(prompts.confirm).mockResolvedValue(true);
-
     // Run migration
     await runMigrationAction(mockRootDir);
 
@@ -182,23 +171,17 @@ describe('migrationAction', () => {
     expect(result.ignoreMigrated).toBe(false);
     expect(result.instructionMigrated).toBe(false);
     expect(result.outputFilesMigrated).toHaveLength(0);
-    expect(prompts.confirm).not.toHaveBeenCalled();
     expect(logger.debug).toHaveBeenCalledWith('No Repopack files found to migrate.');
   });
 
-  test('should skip files when they already exist and user declines overwrite', async () => {
+  test('should skip files when they already exist', async () => {
     // Mock old and new files existing
     vi.mocked(fs.access).mockResolvedValue(undefined);
-
-    // Mock user confirming migration but declining overwrites
-    vi.mocked(prompts.confirm)
-      .mockResolvedValueOnce(true) // Migration confirmation
-      .mockResolvedValue(false); // All overwrite confirmations
 
     // Run migration
     const result = await runMigrationAction(mockRootDir);
 
-    // Verify nothing was migrated
+    // Verify nothing was migrated since new files already exist
     expect(result.configMigrated).toBe(false);
     expect(result.ignoreMigrated).toBe(false);
     expect(result.instructionMigrated).toBe(false);

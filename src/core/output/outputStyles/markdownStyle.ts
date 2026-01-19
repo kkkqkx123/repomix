@@ -1,5 +1,3 @@
-import Handlebars from 'handlebars';
-
 export const getMarkdownTemplate = () => {
   return /* md */ `
 {{#if fileSummaryEnabled}}
@@ -83,7 +81,7 @@ export const getMarkdownTemplate = () => {
 `;
 };
 
-Handlebars.registerHelper('getFileExtension', (filePath) => {
+export const getFileExtension = (filePath: string): string => {
   const extension = filePath.split('.').pop()?.toLowerCase();
   switch (extension) {
     case 'js':
@@ -187,4 +185,4 @@ Handlebars.registerHelper('getFileExtension', (filePath) => {
     default:
       return '';
   }
-});
+};

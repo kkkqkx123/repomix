@@ -37,9 +37,6 @@ const createMockConfig = (overrides: Partial<RepomixConfigMerged> = {}): Repomix
     useDefaultPatterns: true,
     customPatterns: [],
   },
-  security: {
-    enableSecurityCheck: true,
-  },
   tokenCount: {
     encoding: 'cl100k_base',
   },
