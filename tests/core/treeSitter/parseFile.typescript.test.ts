@@ -24,7 +24,7 @@ describe('TypeScript File Parsing', () => {
         function sayHello(name) { console.log("Hello, " + name); }
       `;
       const filePath = 'dummy.ts';
-      const config = {};
+      const config = { output: { compress: true } };
       const result = await parseFile(fileContent, filePath, config as RepomixConfigMerged);
       expect(typeof result).toBe('string');
 
@@ -87,7 +87,7 @@ describe('TypeScript File Parsing', () => {
         function greet(name: string){ console.log("Hello, " + name); }
       `;
       const filePath = 'dummy.tsx';
-      const config = {};
+      const config = { output: { compress: true } };
       const result = await parseFile(fileContent, filePath, config as RepomixConfigMerged);
       expect(typeof result).toBe('string');
 

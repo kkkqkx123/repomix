@@ -54,7 +54,7 @@ describe('parseFile for Go', () => {
       }
     `;
     const filePath = 'sample.go';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -118,7 +118,7 @@ describe('parseFile for Go', () => {
       }
     `;
     const filePath = 'simple.go';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -142,7 +142,7 @@ describe('parseFile for Go', () => {
       }
     `;
     const filePath = 'comments.go';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -168,7 +168,7 @@ describe('parseFile for Go', () => {
       type Result map[string]interface{}
     `;
     const filePath = 'types.go';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

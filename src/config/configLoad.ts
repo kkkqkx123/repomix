@@ -77,7 +77,7 @@ export const loadFileConfig = async (rootDir: string, argConfigPath: string | nu
 
   logger.log(
     pc.dim(
-      `No custom config found at ${defaultConfigPaths.join(', ')} or global config at ${globalConfigPaths.join(', ')}.\nYou can add a config file for additional settings. Please check https://github.com/yamadashy/repomix for more information.`,
+      `No custom config found at ${defaultConfigPaths.join(', ')} or global config at ${globalConfigPaths.join(', ')}.\nYou can add a config file for additional settings. Please check the documentation for more information.`,
     ),
   );
   return {};

@@ -23,7 +23,7 @@ describe('parseFile comment support', () => {
     ].join('\n');
 
     const filePath = 'test.ts';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -60,7 +60,7 @@ describe('parseFile comment support', () => {
     ].join('\n');
 
     const filePath = 'test.py';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -96,7 +96,7 @@ describe('parseFile comment support', () => {
     ].join('\n');
 
     const filePath = 'test.java';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -135,7 +135,7 @@ describe('parseFile comment support', () => {
     ].join('\n');
 
     const filePath = 'test.cs';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -169,7 +169,7 @@ describe('parseFile comment support', () => {
     ].join('\n');
 
     const filePath = 'test.rs';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -208,7 +208,7 @@ describe('parseFile comment support', () => {
     ].join('\n');
 
     const filePath = 'test.rb';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

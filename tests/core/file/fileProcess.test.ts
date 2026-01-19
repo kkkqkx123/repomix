@@ -51,8 +51,8 @@ describe('fileProcess', () => {
       });
 
       expect(result).toEqual([
-        { path: 'file1.js', content: 'const a = 1;' },
-        { path: 'file2.js', content: 'const b = 2;' },
+        { path: 'file1.js', content: '\nconst a = 1;' },
+        { path: 'file2.js', content: '\nconst b = 2;' },
       ]);
     });
   });

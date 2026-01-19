@@ -176,8 +176,8 @@ export const run = async () => {
       .addOption(createFileOptions()[1]) // --flatten 选项
       // Remote Repository Options
       .optionsGroup('Remote Repository Options')
-      .option('--remote <url>', 'Clone and pack a remote repository (GitHub URL or user/repo format)')
-      .option('--remote-branch <name>', "Specific branch, tag, or commit to use (default: repository's default branch)")
+      .option('--remote <url>', 'Process a remote repository (feature removed, use local clone instead)')
+      .option('--remote-branch <name>', "Specific branch, tag, or commit to use (feature removed)")
       // Configuration Options
       .optionsGroup('Configuration Options')
       .option('-c, --config <path>', 'Use custom config file instead of repomix.config.json')
@@ -279,7 +279,7 @@ export const runCli = async (directories: string[], cwd: string, options: CliOpt
   }
 
   if (options.remote) {
-    return await runRemoteAction(options.remote, options);
+    throw new Error('Remote repository functionality has been removed. Please clone the repository locally first and then run repomix on the local directory.');
   }
 
   return await runDefaultAction(directories, cwd, options);

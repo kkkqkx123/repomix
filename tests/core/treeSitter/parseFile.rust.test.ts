@@ -44,7 +44,7 @@ describe('parseFile for Rust', () => {
       }
     `;
     const filePath = 'dummy.rs';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

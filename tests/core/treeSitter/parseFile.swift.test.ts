@@ -92,7 +92,7 @@ describe('parseFile for Swift', () => {
       print("Total area: \\(totalArea)")
     `;
     const filePath = 'sample.swift';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -174,7 +174,7 @@ describe('parseFile for Swift', () => {
       }
     `;
     const filePath = 'extensions.swift';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -241,7 +241,7 @@ describe('parseFile for Swift', () => {
       }
     `;
     const filePath = 'generics.swift';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

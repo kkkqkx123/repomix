@@ -19,7 +19,7 @@ describe('parseFile for Java', () => {
       }
     `;
     const filePath = 'dummy.java';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

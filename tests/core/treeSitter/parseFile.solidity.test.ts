@@ -73,6 +73,7 @@ contract MyContract is BaseContract, IMyInterface {
       ...defaultConfig,
       output: {
         ...defaultConfig.output,
+        compress: true,
         removeComments: true,
       },
     };

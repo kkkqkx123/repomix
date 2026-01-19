@@ -15,7 +15,7 @@ describe('parseFile for C/C++', () => {
       }
     `;
     const filePath = 'dummy.cpp';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -41,7 +41,7 @@ describe('parseFile for C/C++', () => {
       int main() { std::cout << "Hello, world!"; return 0; }
     `;
     const filePath = 'dummy.hpp';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -62,7 +62,7 @@ describe('parseFile for C/C++', () => {
       int main() { printf("Hello, world!"); return 0; }
     `;
     const filePath = 'dummy.c';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -82,7 +82,7 @@ describe('parseFile for C/C++', () => {
       int main() { printf("Hello, world!"); return 0; }
     `;
     const filePath = 'dummy.h';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

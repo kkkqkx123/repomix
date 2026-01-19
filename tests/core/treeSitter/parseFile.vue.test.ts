@@ -51,7 +51,7 @@ export default {
 </style>
     `;
     const filePath = 'HelloWorld.vue';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -106,7 +106,7 @@ export default defineComponent({
 </script>
     `;
     const filePath = 'Counter.vue';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -151,7 +151,7 @@ function updateMessage() {
 </script>
     `;
     const filePath = 'Composition.vue';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

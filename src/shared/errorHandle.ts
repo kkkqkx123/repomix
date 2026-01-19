@@ -1,6 +1,5 @@
 import { inspect } from 'node:util';
 import { z } from 'zod';
-import { REPOMIX_DISCORD_URL, REPOMIX_ISSUES_URL } from './constants.js';
 import { logger, repomixLogLevels } from './logger.js';
 
 export class RepomixError extends Error {
@@ -65,12 +64,6 @@ export const handleError = (error: unknown): void => {
       logger.note('For detailed debug information, use the --verbose flag');
     }
   }
-
-  // Community support information
-  logger.log('');
-  logger.info('Need help?');
-  logger.info(`• File an issue on GitHub: ${REPOMIX_ISSUES_URL}`);
-  logger.info(`• Join our Discord community: ${REPOMIX_DISCORD_URL}`);
 };
 
 /**

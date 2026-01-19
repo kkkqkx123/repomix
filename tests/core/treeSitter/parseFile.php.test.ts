@@ -48,7 +48,7 @@ enum GreeterEnum: string {
 ?>
 `;
     const filePath = 'dummy.php';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
     const expectContents = [

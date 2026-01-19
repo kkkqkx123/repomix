@@ -111,7 +111,7 @@ describe('configSchema', () => {
           compress: false,
           topFilesLength: 5,
           showLineNumbers: false,
-          truncateBase64: true,
+          truncateBase64: false,
           tokenCountTree: '100',
           git: {
             sortByChanges: true,
@@ -120,6 +120,10 @@ describe('configSchema', () => {
             includeLogs: false,
             includeLogsCount: 50,
           },
+        },
+        files: {
+          patterns: [],
+          flatten: false,
         },
         include: [],
         ignore: {
@@ -208,7 +212,7 @@ describe('configSchema', () => {
           compress: false,
           topFilesLength: 10,
           showLineNumbers: true,
-          truncateBase64: true,
+          truncateBase64: false,
           tokenCountTree: false,
           git: {
             sortByChanges: true,
@@ -217,6 +221,10 @@ describe('configSchema', () => {
             includeLogs: false,
             includeLogsCount: 50,
           },
+        },
+        files: {
+          patterns: [],
+          flatten: false,
         },
         include: ['**/*.js', '**/*.ts'],
         ignore: {

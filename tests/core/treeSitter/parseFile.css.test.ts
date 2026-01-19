@@ -41,7 +41,7 @@ describe('parseFile for CSS', () => {
       }
     `;
     const filePath = 'style.css';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -94,7 +94,7 @@ describe('parseFile for CSS', () => {
       .container { width: 100%; }
     `;
     const filePath = 'comments.css';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -126,7 +126,7 @@ describe('parseFile for CSS', () => {
       }
     `;
     const filePath = 'at-rules.css';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -161,7 +161,7 @@ describe('parseFile for CSS', () => {
       }
     `;
     const filePath = 'complex-selectors.css';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

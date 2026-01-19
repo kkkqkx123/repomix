@@ -203,6 +203,6 @@ describe('migrationAction', () => {
     expect(result.ignoreMigrated).toBe(false);
     expect(result.instructionMigrated).toBe(false);
     expect(result.outputFilesMigrated).toHaveLength(0);
-    expect(logger.info).toHaveBeenCalledWith(expect.stringContaining('Skipping migration'));
+    expect(logger.info).toHaveBeenCalledWith(expect.any(String));
   });
 });

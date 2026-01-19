@@ -50,7 +50,7 @@ describe('parseFile for Ruby', () => {
       puts person.greet
     `;
     const filePath = 'sample.rb';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, config as RepomixConfigMerged);
     expect(typeof result).toBe('string');
 
@@ -105,7 +105,7 @@ describe('parseFile for Ruby', () => {
       end
     `;
     const filePath = 'admin.rb';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, config as RepomixConfigMerged);
     expect(typeof result).toBe('string');
 
@@ -137,7 +137,7 @@ describe('parseFile for Ruby', () => {
       end
     `;
     const filePath = 'comments.rb';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, config as RepomixConfigMerged);
     expect(typeof result).toBe('string');
 
@@ -186,7 +186,7 @@ describe('parseFile for Ruby', () => {
       end
     `;
     const filePath = 'service.rb';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, config as RepomixConfigMerged);
     expect(typeof result).toBe('string');
 

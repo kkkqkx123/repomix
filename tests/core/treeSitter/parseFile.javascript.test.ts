@@ -19,7 +19,7 @@ describe('parseFile for JavaScript', () => {
       }
     `;
     const filePath = 'dummy.js';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
     // Check content
@@ -46,7 +46,7 @@ describe('parseFile for JavaScript', () => {
       function sayHello(name) { console.log("Hello, " + name); }
     `;
     const filePath = 'dummy.jsx';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 

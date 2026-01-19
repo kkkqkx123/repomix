@@ -80,7 +80,7 @@ describe('parseFile for C', () => {
       }
     `;
     const filePath = 'sample.c';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -141,7 +141,7 @@ describe('parseFile for C', () => {
       }
     `;
     const filePath = 'functions.c';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
@@ -183,7 +183,7 @@ describe('parseFile for C', () => {
       typedef char String[256];
     `;
     const filePath = 'types.c';
-    const config = {};
+    const config = { output: { compress: true } };
     const result = await parseFile(fileContent, filePath, createMockConfig(config));
     expect(typeof result).toBe('string');
 
