@@ -12,7 +12,6 @@ import { type GitDiffResult, getGitDiffs } from './git/gitDiffHandle.js';
 import { type GitLogResult, getGitLogs } from './git/gitLogHandle.js';
 import { calculateMetrics } from './metrics/calculateMetrics.js';
 import { generateOutput } from './output/outputGenerate.js';
-import { copyToClipboardIfEnabled } from './packager/copyToClipboardIfEnabled.js';
 import { writeOutputToDisk } from './packager/writeOutputToDisk.js';
 import type { SuspiciousFileResult } from './security/securityCheck.js';
 import { validateFileSafety } from './security/validateFileSafety.js';
@@ -40,7 +39,6 @@ const defaultDeps = {
   generateOutput,
   validateFileSafety,
   writeOutputToDisk,
-  copyToClipboardIfEnabled,
   calculateMetrics,
   sortPaths,
   getGitDiffs,
@@ -173,7 +171,6 @@ export const pack = async (
   progressCallback('Writing output file...');
   await withMemoryLogging('Write Output', () => deps.writeOutputToDisk(output, config));
 
-  await deps.copyToClipboardIfEnabled(output, progressCallback, config);
 
   const metrics = await withMemoryLogging('Calculate Metrics', () =>
     deps.calculateMetrics(processedFiles, output, progressCallback, config, gitDiffResult, gitLogResult),

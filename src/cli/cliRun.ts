@@ -6,7 +6,6 @@ import { handleError, RepomixError } from '../shared/errorHandle.js';
 import { logger, repomixLogLevels } from '../shared/logger.js';
 import { runDefaultAction } from './actions/defaultAction.js';
 import { runInitAction } from './actions/initAction.js';
-import { runMcpAction } from './actions/mcpAction.js';
 import { runRemoteAction } from './actions/remoteAction.js';
 import { runVersionAction } from './actions/versionAction.js';
 import { createFileOptions, parseFilePatterns, validateFileOptions } from './options/fileOptions.js';
@@ -97,7 +96,6 @@ export const run = async () => {
         ).conflicts('output'),
       )
       .option('--stdin', 'Read file paths from stdin, one per line (specified files are processed directly)')
-      .option('--copy', 'Copy the generated output to system clipboard after processing')
       .option(
         '--token-count-tree [threshold]',
         'Show file tree with token counts; optional threshold to show only files with ≥N tokens (e.g., --token-count-tree 100)',
@@ -194,9 +192,6 @@ export const run = async () => {
         '--token-count-encoding <encoding>',
         'Tokenizer model for counting: o200k_base (GPT-4o), cl100k_base (GPT-3.5/4), etc. (default: o200k_base)',
       )
-      // MCP
-      .optionsGroup('MCP')
-      .option('--mcp', 'Run as Model Context Protocol server for AI tool integration')
       .action(commanderActionEndpoint);
 
     // Custom error handling function
@@ -266,9 +261,6 @@ export const runCli = async (directories: string[], cwd: string, options: CliOpt
   logger.trace('cwd:', cwd);
   logger.trace('options:', options);
 
-  if (options.mcp) {
-    return await runMcpAction();
-  }
 
   if (options.version) {
     await runVersionAction();

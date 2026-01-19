@@ -52,8 +52,6 @@ export interface CliOptions extends OptionValues {
   tokenCountEncoding?: string;
   tokenCountTree?: boolean | number;
 
-  // MCP
-  mcp?: boolean;
 
   // Other Options
   topFilesLen?: number;

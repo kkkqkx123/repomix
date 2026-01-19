@@ -202,5 +202,5 @@ export const reportCompletion = () => {
   logger.log(pc.white('Your repository has been successfully packed.'));
 
   logger.log('');
-  logger.log(`💡 Repomix is now available in your browser! Try it at ${pc.underline('https://repomix.com')}`);
+  logger.log(`💡 Repomix is available as a CLI tool! Install with npm install -g repomix`);
 };

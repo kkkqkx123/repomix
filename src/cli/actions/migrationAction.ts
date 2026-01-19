@@ -1,6 +1,5 @@
 import * as fs from 'node:fs/promises';
 import path from 'node:path';
-import * as prompts from '@clack/prompts';
 import pc from 'picocolors';
 import { getGlobalDirectory } from '../../config/globalDirectory.js';
 import { logger } from '../../shared/logger.js';
@@ -108,14 +107,8 @@ const migrateFile = async (
 
   const exists = await fileExists(newPath);
   if (exists) {
-    const shouldOverwrite = await prompts.confirm({
-      message: `${description} already exists at ${newPath}. Do you want to overwrite it?`,
-    });
-
-    if (prompts.isCancel(shouldOverwrite) || !shouldOverwrite) {
-      logger.info(`Skipping migration of ${description}`);
-      return false;
-    }
+    // Non-interactive migration: always overwrite if new file exists
+    logger.log(pc.yellow(`Warning: ${description} already exists at ${newPath}. Overwriting.`));
   }
 
   try {
@@ -237,22 +230,8 @@ export const runMigrationAction = async (rootDir: string): Promise<MigrationResu
       return result;
     }
 
-    // Show migration notice based on what needs to be migrated
-    let migrationMessage = `Found ${pc.green('Repopack')} `;
-    const items = [];
-    if (hasOldConfig || hasOldIgnore || hasOldInstruction || hasOldOutput) items.push('local configuration');
-    if (hasOldGlobalConfig) items.push('global configuration');
-    migrationMessage += `${items.join(' and ')}. Would you like to migrate to ${pc.green('Repomix')}?`;
-
-    // Confirm migration with user
-    const shouldMigrate = await prompts.confirm({
-      message: migrationMessage,
-    });
-
-    if (prompts.isCancel(shouldMigrate) || !shouldMigrate) {
-      logger.info('Migration cancelled.');
-      return result;
-    }
+    // Non-interactive migration: proceed with migration automatically
+    logger.log(pc.cyan('Found Repopack files to migrate to Repomix format...'));
 
     // Show migration notice
     logger.info(pc.cyan('\nMigrating from Repopack to Repomix...'));
@@ -304,7 +283,7 @@ export const runMigrationAction = async (rootDir: string): Promise<MigrationResu
       result.globalConfigMigrated
     ) {
       logger.log('');
-      logger.success('✔ Migration completed successfully!');
+      logger.log(pc.green('✔ Migration completed successfully!'));
       logger.log('');
       logger.info(
         'You can now use Repomix commands as usual. The old Repopack files have been migrated to the new format.',
