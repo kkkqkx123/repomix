@@ -2,7 +2,7 @@
 node_modules/
 
 # Build output
-lib/
+dist/
 website/client/.vitepress/dist/
 
 # Logs
@@ -53,3 +53,5 @@ repomix-output.json
 # private files
 .private/
 .env
+
+package-lock.json

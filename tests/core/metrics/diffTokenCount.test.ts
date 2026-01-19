@@ -66,7 +66,6 @@ index 123..456 100644
         compress: false,
         topFilesLength: 5,
         showLineNumbers: false,
-        copyToClipboard: false,
         git: {
           sortByChanges: true,
           sortByChangesMaxCommits: 100,
@@ -149,7 +148,6 @@ index 123..456 100644
         compress: false,
         topFilesLength: 5,
         showLineNumbers: false,
-        copyToClipboard: false,
         git: {
           sortByChanges: true,
           sortByChangesMaxCommits: 100,
@@ -226,7 +224,6 @@ index 123..456 100644
         compress: false,
         topFilesLength: 5,
         showLineNumbers: false,
-        copyToClipboard: false,
         git: {
           sortByChanges: true,
           sortByChangesMaxCommits: 100,

@@ -7,8 +7,6 @@ export const copyToClipboardIfEnabled = async (
   progressCallback: RepomixProgressCallback,
   config: RepomixConfigMerged,
 ): Promise<void> => {
-  if (!config.output.copyToClipboard) return;
-  progressCallback('Skipping clipboard copy (feature removed for simplicity)...');
-  
-  logger.log('Note: Clipboard functionality has been removed to simplify the tool. Output saved to file only.');
+  // Clipboard functionality has been removed to simplify the tool
+  // This function is kept for compatibility but does nothing
 };

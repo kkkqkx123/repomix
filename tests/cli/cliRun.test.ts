@@ -64,7 +64,6 @@ describe('cliRun', () => {
           removeComments: false,
           removeEmptyLines: false,
           compress: false,
-          copyToClipboard: false,
           files: true,
           git: {
             sortByChanges: true,
@@ -120,7 +119,6 @@ describe('cliRun', () => {
           removeComments: false,
           removeEmptyLines: false,
           compress: false,
-          copyToClipboard: false,
           files: true,
           git: {
             sortByChanges: true,

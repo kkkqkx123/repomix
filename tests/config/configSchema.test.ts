@@ -112,7 +112,6 @@ describe('configSchema', () => {
           topFilesLength: 5,
           showLineNumbers: false,
           truncateBase64: true,
-          copyToClipboard: true,
           tokenCountTree: '100',
           git: {
             sortByChanges: true,
@@ -210,7 +209,6 @@ describe('configSchema', () => {
           topFilesLength: 10,
           showLineNumbers: true,
           truncateBase64: true,
-          copyToClipboard: false,
           tokenCountTree: false,
           git: {
             sortByChanges: true,

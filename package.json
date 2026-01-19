@@ -2,24 +2,24 @@
   "name": "kkkqkx-repomix",
   "version": "1.0.7",
   "description": "A tool to pack repository contents to single file for AI consumption",
-  "main": "./lib/index.js",
-  "types": "./lib/index.d.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": {
-        "types": "./lib/index.d.ts",
-        "default": "./lib/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       },
       "require": {
-        "types": "./lib/index.d.ts",
-        "default": "./lib/index.js"
+        "types": "./dist/index.d.ts",
+        "default": "./dist/index.js"
       },
-      "default": "./lib/index.js"
+      "default": "./dist/index.js"
     }
   },
   "bin": "./bin/repomix.cjs",
   "scripts": {
-    "build": "rimraf lib && tsc -p tsconfig.build.json --sourceMap --declaration",
+    "build": "rimraf dist && tsc -p tsconfig.build.json --sourceMap --declaration",
     "build-bun": "bun run build",
     "lint": "node --run lint-ts",
     "lint-ts": "tsc --noEmit",
@@ -63,7 +63,7 @@
     "access": "public"
   },
   "files": [
-    "lib/",
+    "dist/",
     "bin/",
     "README.md",
     "LICENSE"

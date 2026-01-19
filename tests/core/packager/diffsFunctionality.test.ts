@@ -84,7 +84,6 @@ index 123..456 100644
       generateOutput: mockGenerateOutput,
       validateFileSafety: mockValidateFileSafety,
       writeOutputToDisk: mockHandleOutput,
-      copyToClipboardIfEnabled: mockCopyToClipboard,
       calculateMetrics: mockCalculateMetrics,
       sortPaths: mockSortPaths,
     });
@@ -136,7 +135,6 @@ index 123..456 100644
       generateOutput: mockGenerateOutput,
       validateFileSafety: mockValidateFileSafety,
       writeOutputToDisk: mockHandleOutput,
-      copyToClipboardIfEnabled: mockCopyToClipboard,
       calculateMetrics: mockCalculateMetrics,
       sortPaths: mockSortPaths,
     });

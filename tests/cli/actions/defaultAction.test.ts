@@ -64,7 +64,6 @@ describe('defaultAction', () => {
           removeComments: false,
           removeEmptyLines: false,
           compress: false,
-          copyToClipboard: false,
           stdout: false,
           git: {
             sortByChanges: true,

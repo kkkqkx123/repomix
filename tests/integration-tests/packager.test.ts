@@ -17,7 +17,6 @@ import fileCollectWorker from '../../src/core/file/workers/fileCollectWorker.js'
 import fileProcessWorker from '../../src/core/file/workers/fileProcessWorker.js';
 import type { GitDiffResult } from '../../src/core/git/gitDiffHandle.js';
 import { generateOutput } from '../../src/core/output/outputGenerate.js';
-import { copyToClipboardIfEnabled } from '../../src/core/packager/copyToClipboardIfEnabled.js';
 import { writeOutputToDisk } from '../../src/core/packager/writeOutputToDisk.js';
 import { pack } from '../../src/core/packager.js';
 import { filterOutUntrustedFiles } from '../../src/core/security/filterOutUntrustedFiles.js';
@@ -131,7 +130,6 @@ describe.runIf(!isWindows)('packager integration', () => {
           });
         },
         writeOutputToDisk,
-        copyToClipboardIfEnabled,
         calculateMetrics: async (
           processedFiles,
           _output,

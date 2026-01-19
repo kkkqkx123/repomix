@@ -21,7 +21,6 @@ const createMockConfig = (overrides: Partial<RepomixConfigMerged> = {}): Repomix
     topFilesLength: 5,
     showLineNumbers: false,
     truncateBase64: false,
-    copyToClipboard: false,
     includeEmptyDirectories: false,
     tokenCountTree: false,
     git: {

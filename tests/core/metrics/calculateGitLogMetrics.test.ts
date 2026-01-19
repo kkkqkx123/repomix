@@ -39,7 +39,6 @@ describe('calculateGitLogMetrics', () => {
       topFilesLength: 10,
       showLineNumbers: false,
       truncateBase64: false,
-      copyToClipboard: false,
       includeEmptyDirectories: false,
       tokenCountTree: false,
       git: {
