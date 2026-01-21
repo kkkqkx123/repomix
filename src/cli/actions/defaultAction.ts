@@ -13,7 +13,7 @@ import { logger } from '../../shared/logger.js';
 import { splitPatterns } from '../../shared/patternUtils.js';
 import { initTaskRunner } from '../../shared/processConcurrency.js';
 import { reportResults } from '../cliReport.js';
-import { parseFilePatterns, validateFileOptions } from '../options/fileOptions.js';
+import { parseFilePatterns, validateFileOptions } from '../cliOptionsAndReporters.js';
 import type { CliOptions } from '../types.js';
 import { runMigrationAction } from './migrationAction.js';
 import type {

@@ -8,7 +8,7 @@ import { runDefaultAction } from './actions/defaultAction.js';
 import { runInitAction } from './actions/initAction.js';
 import { runRemoteAction } from './actions/remoteAction.js';
 import { runVersionAction } from './actions/versionAction.js';
-import { createFileOptions, parseFilePatterns, validateFileOptions } from './options/fileOptions.js';
+import { createFileOptions, parseFilePatterns, validateFileOptions } from './cliOptionsAndReporters.js';
 import type { CliOptions } from './types.js';
 
 // Semantic mapping for CLI suggestions

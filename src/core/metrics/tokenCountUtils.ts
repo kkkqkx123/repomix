@@ -1,4 +1,18 @@
-import type { FileTokenInfo } from './types.js';
+import type { TiktokenEncoding } from 'tiktoken';
+import { logger } from '../../shared/logger.js';
+
+export interface FileTokenInfo {
+  name: string;
+  tokens: number;
+}
+
+export interface DirectoryTokenInfo {
+  name: string;
+  files: FileTokenInfo[];
+  directories?: DirectoryTokenInfo[];
+}
+
+export type TokenCountOutput = DirectoryTokenInfo[];
 
 export interface FileWithTokens {
   path: string;

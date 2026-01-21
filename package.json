@@ -19,7 +19,7 @@
   },
   "bin": "./bin/repomix.cjs",
   "scripts": {
-    "build": "rimraf dist && tsc -p tsconfig.build.json --sourceMap --declaration",
+    "build": "tsc -p tsconfig.build.json --sourceMap --declaration",
     "build-bun": "bun run build",
     "lint": "node --run lint-ts",
     "lint-ts": "tsc --noEmit",
@@ -94,6 +94,6 @@
     "vitest": "^3.2.4"
   },
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=20.0.0"
   }
 }

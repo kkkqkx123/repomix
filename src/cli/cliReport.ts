@@ -4,7 +4,7 @@ import type { RepomixConfigMerged } from '../config/configSchema.js';
 import type { SkippedFileInfo } from '../core/file/fileCollect.js';
 import type { PackResult } from '../core/packager.js';
 import { logger } from '../shared/logger.js';
-import { reportTokenCountTree } from './reporters/tokenCountTreeReporter.js';
+import { reportTokenCountTree } from './cliOptionsAndReporters.js';
 
 /**
  * Reports the results of packing operation including top files, security check, summary, and completion.
