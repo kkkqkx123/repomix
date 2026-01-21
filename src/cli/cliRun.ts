@@ -240,8 +240,12 @@ export const runCli = async (directories: string[], cwd: string, options: CliOpt
   }
 
   // Set log level based on verbose and quiet flags
+  // In stdout mode, suppress most logs but still allow errors and warnings
   if (options.quiet) {
     logger.setLogLevel(repomixLogLevels.SILENT);
+  } else if (options.stdout) {
+    // In stdout mode, only show errors and warnings to avoid interfering with output
+    logger.setLogLevel(repomixLogLevels.WARN);
   } else if (options.verbose) {
     logger.setLogLevel(repomixLogLevels.DEBUG);
   } else {
@@ -249,14 +253,11 @@ export const runCli = async (directories: string[], cwd: string, options: CliOpt
     logger.setLogLevel(repomixLogLevels.INFO);
   }
 
-  // In stdout mode, set log level to SILENT
-  if (options.stdout) {
-    logger.setLogLevel(repomixLogLevels.SILENT);
+  if (options.verbose) {
+    logger.trace('directories:', directories);
+    logger.trace('cwd:', cwd);
+    logger.trace('options:', options);
   }
-
-  logger.trace('directories:', directories);
-  logger.trace('cwd:', cwd);
-  logger.trace('options:', options);
 
 
   if (options.version) {

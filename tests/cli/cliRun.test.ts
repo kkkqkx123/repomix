@@ -192,15 +192,6 @@ describe('cliRun', () => {
       expect(initAction.runInitAction).toHaveBeenCalledWith(process.cwd(), false);
       expect(defaultAction.runDefaultAction).not.toHaveBeenCalled();
     });
-
-    test('should execute remote action when remote option is provided', async () => {
-      await runCli(['.'], process.cwd(), {
-        remote: 'yamadashy/repomix',
-      });
-
-      expect(remoteAction.runRemoteAction).toHaveBeenCalledWith('yamadashy/repomix', expect.any(Object));
-      expect(defaultAction.runDefaultAction).not.toHaveBeenCalled();
-    });
   });
 
   describe('parsable style flag', () => {

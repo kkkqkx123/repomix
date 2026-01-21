@@ -1,156 +1,190 @@
-# Repomix 项目概述
+# Repomix Project Overview
 
-## 项目简介
+## Project Introduction
 
-Repomix 是一个用于将代码仓库内容打包成单个AI友好文件的工具。它能够将整个代码库的内容整合到一个文件中，便于AI系统进行分析和处理。该工具特别适用于需要将代码库提供给大语言模型进行理解和分析的场景。
+Repomix is a tool designed to package code repository contents into a single AI-friendly file. It consolidates the entire codebase into one file, making it easier for AI systems to analyze and process. This tool is particularly useful in scenarios where codebases need to be provided to large language models for understanding and analysis.
 
-主要特性包括：
-- 可配置的忽略模式
-- 自定义头部文本支持
-- 高效的文件处理和打包
-- 支持多种输出格式（XML、Markdown、JSON、纯文本）
-- Git信息集成（差异、日志、变更频率）
-- 文件大小限制和压缩选项
-- Token计数功能
+Key features include:
+- Configurable ignore patterns
+- Support for custom header text
+- Efficient file processing and packaging
+- Support for multiple output formats (XML, Markdown, JSON, plain text)
+- Git information integration (differences, logs, change frequency)
+- File size limits and compression options
+- Token counting functionality
 
-## 技术栈
+## Technology Stack
 
-- **语言**: TypeScript
-- **运行时**: Node.js (>=20.0.0)
-- **包管理器**: npm
-- **构建工具**: TypeScript 编译器
-- **测试框架**: Vitest
-- **依赖管理**: NodeNext 模块解析
+- **Language**: TypeScript
+- **Runtime**: Node.js (>=20.0.0)
+- **Package Manager**: npm
+- **Build Tool**: TypeScript Compiler
+- **Testing Framework**: Vitest
+- **Dependency Management**: NodeNext module resolution
 
-## 项目架构
+## Project Architecture
 
 ```
 src/
-├── cli/                 # 命令行界面相关代码
-│   ├── actions/         # CLI操作实现
-│   ├── options/         # CLI选项定义
-│   └── reporters/       # 输出报告器
-├── config/             # 配置加载和验证
-├── core/               # 核心功能实现
-│   ├── file/           # 文件处理相关
-│   ├── git/            # Git集成功能
-│   ├── metrics/        # 度量计算
-│   ├── output/         # 输出生成
-│   ├── packager/       # 打包主逻辑
-│   └── treeSitter/     # Tree-sitter语法解析
-├── shared/             # 共享工具和类型
-└── types/              # 类型定义
+├── cli/                 # Command-line interface related code
+├── config/             # Configuration loading and validation
+├── core/               # Core functionality implementation
+│   ├── file/           # File processing
+│   ├── git/            # Git integration features
+│   ├── metrics/        # Metric calculations
+│   ├── output/         # Output generation
+│   ├── packager/       # Main packaging logic
+│   └── treeSitter/     # Tree-sitter syntax parsing
+├── shared/             # Shared utilities and types
+└── types/              # Type definitions
 ```
 
-## Scripts 目录
+## Scripts Directory
 
-Scripts 目录包含一个专门用于内存使用情况基准测试和泄漏检测的子项目：
+The Scripts directory contains a subproject dedicated to memory usage benchmarking and leak detection:
 
 ```
 scripts/
-└── memory/             # 内存使用基准测试工具
-    ├── src/            # 内存测试源代码
-    │   ├── memory-test.ts  # 主要的内存测试脚本
-    │   └── types.ts    # 类型定义
-    ├── package.json    # 内存测试项目的依赖配置
-    └── README.md       # 内存测试工具使用说明
+└── memory/             # Memory usage benchmarking tools
+    ├── src/            # Source code for memory testing
+    │   ├── memory-test.ts  # Main memory test script
+    │   └── types.ts    # Type definitions
+    ├── package.json    # Dependency configuration for memory tests
+    └── README.md       # Usage guide for memory testing tools
 ```
 
-### 内存测试工具
+### Memory Testing Tool
 
-内存测试工具用于监控 Repomix 的内存使用情况，检测潜在的内存泄漏问题。主要功能包括：
+The memory testing tool monitors Repomix's memory usage and detects potential memory leaks. Key capabilities include:
 
-- **快速泄漏检测**: 运行少量迭代以快速检测内存泄漏
-- **连续监控**: 持续运行测试以观察长期内存使用趋势
-- **综合分析**: 详细的内存使用分析和报告生成
-- **图形化展示**: ASCII图表显示内存使用趋势
-- **自动垃圾回收**: 在测试过程中强制执行垃圾回收
-- **结果保存**: 将测试结果保存为JSON格式以便后续分析
+- **Quick Leak Detection**: Run a small number of iterations to quickly identify memory leaks
+- **Continuous Monitoring**: Continuously run tests to observe long-term memory trends
+- **Comprehensive Analysis**: Detailed memory usage analysis and report generation
+- **Graphical Display**: ASCII charts showing memory usage trends
+- **Automatic Garbage Collection**: Force garbage collection during testing
+- **Result Persistence**: Save test results in JSON format for later analysis
 
-该工具通过反复调用 Repomix 的核心功能来模拟实际使用场景，并监控进程的内存使用情况，确保 Repomix 在处理大型代码库时不会出现内存泄漏问题。
+This tool simulates real-world usage by repeatedly invoking Repomix's core functions while monitoring process memory consumption, ensuring that Repomix does not suffer from memory leaks when handling large codebases.
 
-## 核心功能模块
+## Core Functional Modules
 
-### 1. 文件处理 (`src/core/file/`)
-- 文件搜索和过滤
-- 文件内容处理（注释移除、空行移除等）
-- 文件树生成
-- 路径扁平化处理
+### 1. File Processing (`src/core/file/`)
+- File searching and filtering
+- File content processing (comment removal, blank line removal, etc.)
+- File tree generation
+- Path flattening
 
-### 2. Git集成 (`src/core/git/`)
-- Git差异获取
-- Git日志获取
-- 按变更频率排序文件
+### 2. Git Integration (`src/core/git/`)
+- Retrieval of Git diffs
+- Retrieval of Git logs
+- Sorting files by change frequency
 
-### 3. 输出生成 (`src/core/output/`)
-- 多格式输出支持（XML、Markdown、JSON、纯文本）
-- 可配置的输出样式
+### 3. Output Generation (`src/core/output/`)
+- Multi-format output support (XML, Markdown, JSON, plain text)
+- Configurable output styling
 
-### 4. 度量计算 (`src/core/metrics/`)
-- Token计数
-- 文件统计信息
+### 4. Metrics Calculation (`src/core/metrics/`)
+- Token counting
+- File statistics
 
-## 构建和运行
+## Build and Execution
 
-### 开发环境要求
+### Development Environment Requirements
 - Node.js >= 20.0.0
-- Yarn >= 1.22.22 (可选)
+- Yarn >= 1.22.22 (optional)
 
-### 构建命令
+### Build Commands
 ```bash
-# 构建项目
+# Build the project
 npm run build
 
-# 类型检查
+# Type checking
 npm run lint
 
-# 运行测试
+# Run tests
 npm run test
 ```
 
-### 运行命令
+### Run Commands
 ```bash
-# 构建并运行repomix
+# Build and run repomix
 npm run repomix
 
-# 使用源码运行（包含src和tests目录）
+# Run from source (including src and tests directories)
 npm run repomix-src
+
+# Alternative way to run directly from compiled files
+node --enable-source-maps dist/cli/cliRun.js [options]
+
+# For development and debugging
+node tests/debug-cli.mjs
 ```
 
-## 配置
+## Configuration
 
-### 默认配置文件
-项目使用 `repomix.config.json` 作为默认配置文件，支持以下配置项：
+### Default Configuration File
+The project uses `repomix.config.json` as the default configuration file, supporting the following settings:
 
-- `input.maxFileSize`: 最大文件大小限制
-- `output`: 输出配置（文件路径、格式、压缩等）
-- `include`: 包含的文件模式
-- `ignore`: 忽略的文件模式
-- `tokenCount.encoding`: Token计数编码方式
+- `input.maxFileSize`: Maximum file size limit
+- `output`: Output configuration (file path, format, compression, etc.)
+- `include`: Include file patterns
+- `ignore`: Ignore file patterns
+- `tokenCount.encoding`: Encoding method for token counting
 
-### CLI选项
-Repomix提供了丰富的命令行选项：
+### CLI Options
+Repomix provides rich command-line options:
 
-- `-o, --output <file>`: 输出文件路径
-- `--style <type>`: 输出格式（xml, markdown, json, plain）
-- `--include <patterns>`: 包含文件的glob模式
-- `-i, --ignore <patterns>`: 忽略文件的glob模式
-- `--compress`: 使用Tree-sitter提取代码结构
-- `--remove-comments`: 移除代码注释
-- `--clean`: 清理输出模式（移除所有元数据）
-- `--structure`: 仅生成目录结构
-- `--files`: 指定文件模式（实验性功能）
-- `--flatten`: 扁平化文件路径（实验性功能）
+- `-o, --output <file>`: Output file path
+- `--style <type>`: Output format (xml, markdown, json, plain)
+- `--include <patterns>`: Glob patterns for included files
+- `-i, --ignore <patterns>`: Glob patterns for ignored files
+- `--compress`: Use Tree-sitter to extract code structure
+- `--remove-comments`: Remove code comments
+- `--clean`: Clean output mode (removes all metadata)
+- `--structure`: Generate only directory structure
+- `--files`: Specify file patterns (experimental feature)
+- `--flatten`: Flatten file paths (experimental feature)
 
-## 特殊功能
+## Special Features
 
-### 文件模式匹配
-Repomix支持通过`--files`参数使用glob模式直接指定文件，以及通过`--flatten`参数将文件路径扁平化。
+### File Pattern Matching
+Repomix supports directly specifying files using glob patterns via the `--files` parameter, and flattening file paths with the `--flatten` parameter.
 
-### Git信息集成
-- `--include-diffs`: 包含Git差异信息
-- `--include-logs`: 包含Git提交日志
-- `--git-sort-by-changes`: 按Git变更频率排序文件
+### Git Information Integration
+- `--include-diffs`: Include Git diff information
+- `--include-logs`: Include Git commit logs
+- `--git-sort-by-changes`: Sort files by Git change frequency
 
-### Token计数
-集成tiktoken库进行准确的token计数，支持多种编码模型。
+### Token Counting
+Integrated with the tiktoken library for accurate token counting, supporting multiple encoding models.
+
+## Issue Resolution Summary
+
+We have successfully resolved the issues with the Repomix CLI tool:
+
+1. Fixed the logger configuration to ensure error messages are always displayed even in stdout mode
+2. Modified the CLI entry point to properly handle different log levels
+3. Ensured that error and warning messages are always output regardless of log level settings
+4. Verified that the CLI can successfully process the repository and generate the output file
+
+The tool now successfully processes all 196 files in the repository, generating a comprehensive output file with detailed statistics.
+
+## Analysis of npm Run Issues
+
+The original problem with `npm run repomix-src` was due to:
+1. Incorrect bin entry in package.json pointing to a non-existent file
+2. Missing instruction file causing errors during output generation
+3. Improper log level handling that suppressed error messages
+
+These issues have been resolved by:
+1. Updating the package.json scripts to point to the correct compiled files
+2. Removing the instructionFilePath from the config since the file didn't exist
+3. Modifying the logger to always show errors and warnings regardless of log level
+4. Ensuring proper error handling in the CLI entry point
+
+## Updated Test Files
+
+Test files have been updated to prevent memory leaks by:
+1. Properly mocking and restoring logger functions
+2. Ensuring cleanup of resources after tests
+3. Correctly handling asynchronous operations

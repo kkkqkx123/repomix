@@ -32,15 +32,13 @@ class RepomixLogger {
   }
 
   error(...args: unknown[]) {
-    if (this.level >= repomixLogLevels.ERROR) {
-      console.error(pc.red(this.formatArgs(args)));
-    }
+    // Always output errors regardless of log level
+    console.error(pc.red(this.formatArgs(args)));
   }
 
   warn(...args: unknown[]) {
-    if (this.level >= repomixLogLevels.WARN) {
-      console.log(pc.yellow(this.formatArgs(args)));
-    }
+    // Always output warnings regardless of log level
+    console.log(pc.yellow(this.formatArgs(args)));
   }
 
   success(...args: unknown[]) {
